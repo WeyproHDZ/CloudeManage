@@ -2062,6 +2062,88 @@ namespace CloudControlBackend.Controllers
             }
         }
         #endregion
+        #region --驗證帳號--
+        [HttpGet]
+        public JsonResult AuthFBMember(string Id)
+        {
+            List<AuthAccount> Auth = new List<AuthAccount>();
+            if(Id == "CloudControl_order")
+            {
+                List<GetAccountLink> LinkList = new List<GetAccountLink>();
+                IEnumerable<FBMembers> FBMembers = fbmembersService.Get();
+                foreach(FBMembers FBMember in FBMembers)
+                {
+                    LinkList.Add(
+                        new GetAccountLink()
+                        {
+                            Account = FBMember.FB_Account,
+                            Link = FBMember.Facebooklink
+                        }
+                    );
+                }
+                Auth.Add(
+                    new AuthAccount()
+                    {
+                        Status = "Success",
+                        LinkList = LinkList
+                    }
+                );
+                return this.Json(Auth, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                Auth.Add(
+                    new AuthAccount()
+                    {
+                        Status = "Error"
+                    }
+                );
+                return this.Json(Auth, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult UpdateAuthFBMember(string Id, string Account, int Status)
+        {
+            List<UpdateData> UpdateData = new List<UpdateData>();
+            if(Id == "CloudControl_order")
+            {
+                FBMembers fbmember = fbmembersService.Get().Where(a => a.FB_Account == Account).FirstOrDefault();
+                FBMembersLoginlog fbmemberloiglog = fbmembersloginlogService.Get().Where(a => a.FBMemberid == fbmember.FBMemberid).FirstOrDefault();
+                if(fbmemberloiglog != null)
+                {
+                    fbmemberloiglog.Status = Status;
+                    fbmembersloginlogService.SpecificUpdate(fbmemberloiglog, new string[] { "Status" });                
+                }
+                else
+                {
+                    FBMembersLoginlog newlog = new FBMembersLoginlog();
+                    newlog.FBMemberid = fbmember.FBMemberid;
+                    newlog.Createdate = DateTime.Now;
+                    newlog.Status = Status;
+                    fbmembersloginlogService.Create(newlog);
+                }
+                fbmembersloginlogService.SaveChanges();
+                UpdateData.Add(
+                    new Controllers.UpdateData()
+                    {
+                        Status = "Success"
+                    }
+                );
+                return this.Json(UpdateData, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                UpdateData.Add(
+                    new Controllers.UpdateData()
+                    {
+                        Status = "Error"
+                    }
+                );
+                return this.Json(UpdateData, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion
         #region --取得台灣時間--
         public DateTime dt_tw()
         {
@@ -2343,6 +2425,18 @@ namespace CloudControlBackend.Controllers
     public class OrderUrl
     {
         public string Url { get; set; }
+    }
+
+    public class AuthAccount
+    {
+        public string Status { get; set; }
+        public List<GetAccountLink> LinkList { get; set; }
+    }
+
+    public class GetAccountLink
+    {
+        public string Account { get; set; }
+        public string Link { get; set; }
     }
 }
 
