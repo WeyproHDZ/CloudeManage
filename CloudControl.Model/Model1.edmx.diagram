@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="92faa115e0224c8e8615172a706761c8" Name="Diagram1">
+        <EntityTypeShape EntityType="CloudControlModel.AdminLims" Width="1.5" PointX="13.125" PointY="0.5" />
+        <EntityTypeShape EntityType="CloudControlModel.Admins" Width="1.5" PointX="13.125" PointY="4.125" />
+        <EntityTypeShape EntityType="CloudControlModel.Lims" Width="1.5" PointX="10.875" PointY="0.5" />
+        <EntityTypeShape EntityType="CloudControlModel.Message" Width="1.5" PointX="11.25" PointY="11" />
+        <EntityTypeShape EntityType="CloudControlModel.Setting" Width="1.5" PointX="0.75" PointY="2.375" />
+        <EntityTypeShape EntityType="CloudControlModel.sysdiagrams" Width="1.5" PointX="17.375" PointY="0.625" />
+        <EntityTypeShape EntityType="CloudControlModel.Useragent" Width="1.5" PointX="0.75" PointY="0.5" />
+        <AssociationConnector Association="CloudControlModel.FK_AdminLims_Admins" />
+        <AssociationConnector Association="CloudControlModel.FK_AdminLims_Lims" />
+        <AssociationConnector Association="CloudControlModel.FK_Lims_Lims" />
+        <EntityTypeShape EntityType="CloudControlModel.CategoryProduct" Width="1.5" PointX="0.625" PointY="8.5" />
+        <EntityTypeShape EntityType="CloudControlModel.CategoryMessage" Width="1.5" PointX="11.125" PointY="8.125" />
+        <AssociationConnector Association="CloudControlModel.FK_Message_CategoryMessage" />
+        <EntityTypeShape EntityType="CloudControlModel.FBOrderlist" Width="1.5" PointX="4.5" PointY="18.625" />
+        <EntityTypeShape EntityType="CloudControlModel.IGOrderlist" Width="1.5" PointX="6.875" PointY="18.625" />
+        <EntityTypeShape EntityType="CloudControlModel.YTOrderlist" Width="1.5" PointX="8.875" PointY="18.625" />
+        <EntityTypeShape EntityType="CloudControlModel.IGMembersLoginlog" Width="1.5" PointX="6.5" PointY="2.625" />
+        <EntityTypeShape EntityType="CloudControlModel.YTMembersLoginlog" Width="1.5" PointX="8.625" PointY="2.625" />
+        <EntityTypeShape EntityType="CloudControlModel.IGMembers" Width="1.5" PointX="6.5" PointY="4.75" />
+        <EntityTypeShape EntityType="CloudControlModel.YTMembers" Width="1.5" PointX="8.625" PointY="4.75" />
+        <AssociationConnector Association="CloudControlModel.FK_IGMembersLoginlog_IGMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_IGOrderlist_IGMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_YTMembersLoginlog_YTMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_YTOrderlist_YTMembers" />
+        <EntityTypeShape EntityType="CloudControlModel.FBMembers" Width="1.5" PointX="4.25" PointY="4.875" />
+        <EntityTypeShape EntityType="CloudControlModel.FBMembersLoginlog" Width="1.5" PointX="4.25" PointY="2.625" />
+        <AssociationConnector Association="CloudControlModel.FK_FBMembersLoginlog_FBMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_FBOrderlist_FBMembers" />
+        <EntityTypeShape EntityType="CloudControlModel.IGOrder" Width="1.5" PointX="6.625" PointY="13.25" />
+        <EntityTypeShape EntityType="CloudControlModel.YTOrder" Width="1.5" PointX="9" PointY="13.25" />
+        <AssociationConnector Association="CloudControlModel.FK_IGOrder_CategoryMessage" />
+        <AssociationConnector Association="CloudControlModel.FK_YTOrder_CategoryMessage" />
+        <AssociationConnector Association="CloudControlModel.FK_IGOrder_IGMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_IGOrderlist_IGOrder" />
+        <AssociationConnector Association="CloudControlModel.FK_YTOrder_YTMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_YTOrderlist_YTOrder" />
+        <EntityTypeShape EntityType="CloudControlModel.Product" Width="1.5" PointX="0.5" PointY="11.125" />
+        <AssociationConnector Association="CloudControlModel.FK_Product_Category" />
+        <AssociationConnector Association="CloudControlModel.FK_FBMembers_Product1" />
+        <AssociationConnector Association="CloudControlModel.FK_IGMembers_Product" />
+        <AssociationConnector Association="CloudControlModel.FK_IGOrder_Product" />
+        <AssociationConnector Association="CloudControlModel.FK_YTMembers_Product1" />
+        <AssociationConnector Association="CloudControlModel.FK_YTOrder_Product" />
+        <EntityTypeShape EntityType="CloudControlModel.FBVMLog" Width="1.5" PointX="4.375" PointY="10.375" />
+        <EntityTypeShape EntityType="CloudControlModel.IGVMLog" Width="1.5" PointX="6.5" PointY="10.375" />
+        <EntityTypeShape EntityType="CloudControlModel.YTVMLog" Width="1.5" PointX="8.625" PointY="10.25" />
+        <AssociationConnector Association="CloudControlModel.FK_IGVMLog_IGOrder" />
+        <AssociationConnector Association="CloudControlModel.FK_YTVMLog_YTOrder" />
+        <EntityTypeShape EntityType="CloudControlModel.FBOrder" Width="1.5" PointX="4.375" PointY="13.25" />
+        <AssociationConnector Association="CloudControlModel.FK_FBOrder_CategoryMessage" />
+        <AssociationConnector Association="CloudControlModel.FK_Order_FBMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_FBOrder_Product" />
+        <AssociationConnector Association="CloudControlModel.FK_FBVMLog_FBOrder" />
+        <AssociationConnector Association="CloudControlModel.FK_Order_Product" />
+        <AssociationConnector Association="CloudControlModel.FK_Orderlist_Order" />
+        <EntityTypeShape EntityType="CloudControlModel.FBVMStatus" Width="1.5" PointX="4.25" PointY="0.75" />
+        <EntityTypeShape EntityType="CloudControlModel.IGVMStatus" Width="1.5" PointX="6.5" PointY="0.75" />
+        <EntityTypeShape EntityType="CloudControlModel.YTVMStatus" Width="1.5" PointX="8.625" PointY="0.625" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

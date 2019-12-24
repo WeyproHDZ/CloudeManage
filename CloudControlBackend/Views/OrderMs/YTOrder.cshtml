@@ -1,0 +1,293 @@
+﻿@{
+    var data = ViewBag.YTOrder as IPagedList<YTOrder>;
+    var total_data = ViewBag.YTOrder_total;
+    int x = 0;
+    string Status = "";
+    double Cost = 0.0;       //總成本
+    double Price = 0.0;      //總售價
+    @*if (TempData.ContainsKey("message"))
+        {
+            <script>alert('@TempData["message"]');</script>
+        }*@
+}
+@model YTOrder
+
+<!-- MAIN CONTENT -->
+<div id="content">
+
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                <div class="well padding-10">
+
+                    <!-- widget content -->
+                    <div class="widget-body">
+                        @using (Html.BeginForm("YTOrder", "OrderMs", FormMethod.Post, new { @id = "form" }))
+                        {
+                            <div class="widget-body-toolbar">
+                                <div class="row">
+                                    <div class="form-inline">
+                                        <div class="col-sm-10">                                            
+                                            <br />產品篩選 :
+                                            @Html.DropDownListFor(model => model.Productid, null, "--請選擇--", new Dictionary<string, object>() { { "class", "form-control" } })
+                                            <br />訂單狀態篩選 :
+                                            <select class="form-control" name="Status">
+                                                <option value="7">--請選擇--</option>
+                                                <option value="0" @(ViewBag.Status == 0 ? "Selected" : "")>等待中</option>
+                                                <option value="1" @(ViewBag.Status == 1 ? "Selected" : "")>運行中</option>
+                                                <option value="2" @(ViewBag.Status == 2 ? "Selected" : "")>已成功</option>
+                                                <option value="3" @(ViewBag.Status == 3 ? "Selected" : "")>失敗</option>
+                                                <option value="4" @(ViewBag.Status == 4 ? "Selected" : "")>等待收回中</option>
+                                                <option value="5" @(ViewBag.Status == 5 ? "Selected" : "")>收回中</option>
+                                                <option value="6" @(ViewBag.Status == 6 ? "Selected" : "")>已收回</option>
+                                            </select>
+                                            <br />
+                                            <button class="btn btn-info btn-labeled" type="submit"><span class="btn-label"><i class="fa fa-search"></i></span>查詢</button>
+                                            <button class="btn btn-danger btn-labeled" type="button" id="deletechecked" onclick="DeleteYTOrderChecked()"><span class="btn-label"><i class="fa fa-trash-o"></i></span>刪除</button>
+                                            <button class="btn btn-primary btn-labeled" type="button" id="calccheckedcost" onclick="CalcCheckedCost()"><span class="btn-label"><i class="fa fa-money"></i></span>計算</button>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <a class="btn btn-success btn-labeled" href="@Url.Action("AddYTOrder", "OrderMs")"> <span class="btn-label"><i class="fa fa-plus"></i></span>新增Youtube訂單 </a>
+                                            @foreach (YTOrder entity in total_data)
+                                            {
+                                                if (entity.Istest == false)
+                                                {
+                                                    Cost += Convert.ToDouble(entity.Product.Cost * entity.Count);
+                                                    Price += Convert.ToDouble(entity.Product.Price * entity.Count);
+                                                }
+                                            }
+                                            <br />
+                                            總成本: @Cost<br />
+                                            總售價: @Price<br />
+                                            總利潤: @(Price - Cost)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+
+                                <table class="table table-hover table-bordered table-striped smart-form">
+                                    <thead>
+                                        <tr>
+                                            <th width="3%" class="text-center"><input type="checkbox" name="Check" id="CheckAll" onclick="Checkall()"></th>
+                                            <th class="text-center">訂單編號</th>
+                                            <th class="text-center">類別名稱</th>
+                                            <th class="text-center">產品名稱</th>
+                                            <th class="text-center">下單時間</th>
+                                            <th width="5%" class="text-center">數量</th>
+                                            <th width="7%" class="text-center">剩餘數量</th>
+                                            <th width="7%" class="text-center">完成數量</th>
+                                            <th width="5%" class="text-center">成本</th>
+                                            <th width="5%" class="text-center">售價</th>
+                                            <th width="5%" class="text-center">網址</th>
+                                            <th width="10%" class="text-center">訂單狀態</th>
+                                            <th width="7%" class="text-center">完成名單</th>
+                                            <th width="5%" class="text-center">重做</th>
+                                            <th width="5%" class="text-center">收回</th>                                        
+                                            <th width="5%" class="text-center">編輯</th>
+                                            <th width="5%" class="text-center">刪除</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (YTOrder entity in data)
+                                        {
+                                            <tr>
+                                                <td><input type="checkbox" name="@entity.YTOrderid" value="1" id="Check" data-ytordernumber="@entity.YTOrdernumber" onclick="Statistics_order('@entity.YTOrdernumber')"></td>
+                                                <td class="text-center">@entity.YTOrdernumber</td>
+                                                <td class="text-center">Youtube</td>
+                                                <td class="text-center">@entity.Product.Productname</td>
+                                                <td class="text-center">@entity.Createdate</td>
+                                                <td class="text-center">@entity.Count</td>
+                                                <td class="text-center">@entity.Remains</td>
+                                                <td class="text-center">@(entity.Count - entity.Remains)</td>
+                                                @if (entity.Istest == true)
+                                                {
+                                                    <td class="text-center">0</td>
+                                                    <td class="text-center">0</td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center">@(entity.Product.Cost * entity.Count)</td>
+                                                    <td class="text-center">@(entity.Product.Price * entity.Count)</td>
+                                                }
+                                                <td class="text-center"><a href="@entity.Url" target="_blank">網址</a></td>
+                                                @switch (entity.YTOrderStatus)
+                                                {
+                                                    case 0:
+                                                        <td class="text-center">等待中</td>
+                                                        break;
+                                                    case 1:
+                                                        <td class="text-center" style="color:orange">運行中</td>
+                                                        break;
+                                                    case 2:
+                                                        <td class="text-center" style="color:green">已成功</td>
+                                                        break;
+                                                    case 3:
+                                                        <td class="text-center" style="color:red">失敗</td>
+                                                        break;
+                                                    case 4:
+                                                        <td class="text-center">等待收回中</td>
+                                                        break;
+                                                    case 5:
+                                                        <td class="text-center" style="color:dodgerblue">收回中</td>
+                                                        break;
+                                                    case 6:
+                                                        <td class="text-center" style="color:blue">已收回</td>
+                                                        break;
+                                                    default:
+                                                        <td class="text-center">資料有誤</td>
+                                                        break;
+                                                }
+                                                <td class="text-center"><a href="@Url.Action("YTOrderlist", "OrderMs", new { YTOrderid = entity.YTOrderid })" class="btn btn-info btn-xs"><i class="fa fa-paper-plane"></i></a></td>
+                                                <td class="text-center"><a href="@Url.Action("YTOrderrework", "OrderMs", new { YTOrderid = entity.YTOrderid, p = ViewBag.pageNumber })" class="btn btn-info btn-xs"><i class="fa fa-rotate-left"></i></a></td>
+                                                @if (entity.YTOrderStatus == 0 || entity.YTOrderStatus == 6)
+                                                {
+                                                    <td class="text-center"><button type="button" onclick="location.href='@Url.Action("YTOrderregain", "OrderMs", new { YTOrderid = entity.YTOrderid, p = ViewBag.pageNumber, Productid = entity.Productid })'" class="btn btn-info btn-xs disabled"><i class="fa fa-play"></i></button></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center"><button type="button" onclick="location.href='@Url.Action("YTOrderregain", "OrderMs", new { YTOrderid = entity.YTOrderid, p = ViewBag.pageNumber, Productid = entity.Productid })'" class="btn btn-info btn-xs"><i class="fa fa-play"></i></button></td>
+                                                }
+                                                <td class="text-center"><a href="@Url.Action("EditYTOrder", "OrderMs", new { YTOrderid = entity.YTOrderid, p = ViewBag.pageNumber })" class="btn btn-info btn-xs"><i class="fa fa-edit"></i></a></td>                                           
+                                                <td class="text-center"><a href="#" class="btn btn-danger btn-xs del" data-href="@Url.Action("DeleteYTOrder", "OrderMs", new { YTOrderid = entity.YTOrderid, p = ViewBag.pageNumber })" data-toggle="modal" data-target="#confirm-delete"><i class="fa fa-trash-o"></i></a></td>
+                                            </tr>
+                                            x++;
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                    <!-- end widget content -->
+                    <div class="text-center">
+                        @Html.PagedListPager(list: data, generatePageUrl: page => Url.Action("YTOrder", new { p = page }))
+                    </div>
+                </div>
+
+            </article>
+            <!-- WIDGET END -->
+
+        </div>
+        <!-- end row -->
+
+    </section>
+    <!-- end widget grid -->
+
+</div>
+<!-- END MAIN CONTENT -->
+<!-- Modal -->
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">確認</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    確定要刪除嗎？
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    取消
+                </button>
+                <a href="#" class="btn btn-primary btn-ok">
+                    確定
+                </a>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+@section scripts {
+    <script>
+        function Statistics_order(YTOrdernumber) {
+            console.log(YTOrdernumber);
+            $.ajax({
+                url: '@Url.Action("AjaxStatisticsOrder", "Ajax")',
+                data: { Ordernumber: YTOrdernumber },
+                type: 'post',
+                dateType: 'json',
+                success: function (response) {
+                }
+            });
+        }
+        function Checkall() {
+            var YTOrdernumber = [];
+            if ($('#CheckAll').prop("checked")) {
+                $.each($('tr').find('input#Check'), function () {
+                    $(this).prop("checked", true);
+                    YTOrdernumber.push($(this).data("ytordernumber"));  //塞到陣列中
+                });
+                $.ajax({
+                    url: '@Url.Action("AjaxStatisticsAllOrder", "Ajax")',
+                    data: { Ordernumber: YTOrdernumber },
+                    type: 'post',
+                    dateType: 'json',
+                    success: function (response) {
+                    }
+                });
+            }
+            else {
+                $.each($('tr').find('input#Check'), function () {
+                    $(this).prop("checked", false);
+                });
+            }
+        }
+        /*** 批量刪除 ***/
+        function DeleteYTOrderChecked() {
+            var YTOrderid = [];
+            swal({
+                title:"確定要刪除嗎?",
+                showCancelButton: true,
+                confirmButtonText: '確定！',
+                cancelButtonText: '取消！',
+                type:'question',
+            }).then(function(e){
+                $.each($('tr').find('input#Check'), function () {
+                    if ($(this).prop('checked') == true) {
+                        YTOrderid.push($(this).attr("name"));  //塞到陣列中
+                    }
+                });
+                $.ajax({
+                    url: '@Url.Action("AjaxDeleteOrderChecked", "Ajax")',
+                    data: { IGOrderid: IGOrderid },
+                    type: 'post',
+                    dateType: 'json',
+                    success: function (response) {
+                        swal({
+                            title: "已成功刪除",
+                            type: "success"
+                        }).then(function (e) {
+                            location.reload();
+                        });
+                    }
+                });
+            })
+        }
+        /**** 計算成本/售量/利潤 ***/
+        function CalcCheckedCost() {
+            $.ajax({
+                url: '@Url.Action("AjaxCalcCheckedCost", "Ajax")',
+                data: {},
+                type: 'post',
+                dateType: 'json',
+                success: function (response) {
+                    var responseArray = response.split(";")
+                    swal({
+                        title: "計算結果",
+                        html: "成本 : " + responseArray[0] + "<br>" + "售價 : " + responseArray[1] + "<br>" + "利潤 : " + responseArray[2] + "<br>" + "共" + responseArray[3] + "筆"
+                    }).then(function (e) {
+                        location.reload();
+                    });
+                }
+            });
+        }
+    </script>
+}

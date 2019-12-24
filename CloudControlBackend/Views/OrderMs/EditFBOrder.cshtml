@@ -1,0 +1,224 @@
+﻿@model FBOrder
+@{
+    int i = 0;
+}
+<div id="content">
+
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+
+        <!-- row -->
+        <div class="row">
+
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                <!-- Widget ID (each widget will need unique ID)-->
+                <div class="jarviswidget" id="wid-id-4" data-widget-editbutton="false" data-widget-colorbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-collapsed="false" data-widget-sortable="false">
+                    <header>
+                        <span class="widget-icon"> <i class="fa fa-pencil-square-o"></i> </span>
+                        <h2>編輯FB訂單</h2>
+                        <ul class="nav nav-tabs pull-right in">
+                            <li><a data-toggle="tab" href="#hb1">基本資料</a></li>
+                        </ul>
+                    </header>
+
+                    <!-- widget div-->
+                    <div>
+
+                        <!-- widget edit box -->
+                        <div class="jarviswidget-editbox">
+                            <!-- This area used as dropdown edit box -->
+
+                        </div>
+                        <!-- end widget edit box -->
+                        <!-- widget content -->
+                        <div class="widget-body">
+
+                            <form id="form" method="post" class="form-horizontal" enctype="multipart/form-data" action="@Url.Action("EditFBOrder", "OrderMs")"
+                                  data-bv-message="This value is not valid"
+                                  data-bv-feedbackicons-valid="glyphicon glyphicon-ok"
+                                  data-bv-feedbackicons-invalid="glyphicon glyphicon-remove"
+                                  data-bv-feedbackicons-validating="glyphicon glyphicon-refresh">
+
+                                @if (Html.ValidationSummary(true) != null)
+                                {
+                                    <div class="alert alert-danger alert-block">
+                                        <h4 class="alert-heading">Error!</h4>
+                                        @Html.ValidationSummary(true)
+                                    </div>
+                                }
+                                @Html.HiddenFor(model => model.FBOrderid)
+                                <div id="content" class="tab-content">
+                                    <div class="tab-pane" id="hb1">
+                                        <fieldset>
+                                            @*<div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">類別</label>
+                                                <section class="col-lg-3">
+                                                    @Html.DropDownListFor(model => model.Categoryid, null, "--請選擇--", new Dictionary<string, object>() { { "class", "form-control" } })
+                                                </section>
+                                            </div>*@
+                                            <div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">是否測試</label>
+                                                <section class="col-lg-3">
+                                                    @Html.CheckBoxFor(model => model.Istest, new Dictionary<string, object>() { { "Id", "Istest" } })
+                                                </section>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">產品</label>
+                                                    <section class="col-lg-3">
+                                                        @Html.DropDownListFor(model => model.Productid, null, "--請選擇--", new Dictionary<string, object>() { { "class", "form-control" }, { "id", "Productid" }, { "disabled", "disabled" } })
+                                                        @*<select id="Productid" name="Productid" class="form-control col-lg-3"><option>---------</option></select>*@
+                                                    </section>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">留言類別</label>
+                                                <section class="col-lg-3">
+                                                    @Html.DropDownListFor(model => model.Categoryid, null, "--請選擇--", new Dictionary<string, object>() { { "class", "form-control" }, { "disabled", "disabled" } })
+                                                    @*<select id="Productid" name="Productid" class="form-control col-lg-3"><option>---------</option></select>*@
+                                                </section>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">網址</label>
+                                                <section class="col-lg-6">
+                                                    @Html.TextBoxFor(model => model.Url, new Dictionary<string, object>() { { "class", "form-control" }, { "disabled", "disabled" } })
+                                                    @Html.ValidationMessageFor(model => model.Url)
+                                                </section>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">數量</label>
+                                                <section class="col-lg-3">
+                                                    @Html.TextBoxFor(model => model.Count, new Dictionary<string, object>() { { "class", "form-control" }, { "id", "count" }, { "disabled", "disabled" } })
+                                                    @Html.ValidationMessageFor(model => model.Count)
+                                                </section>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">成本</label>
+                                                <label class="col-lg-3" id="Cost">@(Model.Count * Model.Product.Cost)</label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">售價</label>
+                                                <label class="col-lg-3" id="Price">@(Model.Count * Model.Product.Price)</label>
+                                            </div> 
+                                            <div class="form-group">
+                                                <label class="col-lg-2 control-label" for="title">訂單狀態</label>
+                                                <section class="col-lg-3">
+                                                    <select class="form-control" id="FBOrderStatus" name="FBOrderStatus">
+                                                        <option value="0" @(Model.FBOrderStatus == 0 ? "selected" : "")>等待中</option>
+                                                        <option value="1" @(Model.FBOrderStatus == 1 ? "selected" : "")>運行中</option>
+                                                        <option value="2" @(Model.FBOrderStatus == 2 ? "selected" : "")>已完成</option>
+                                                        <option value="3" @(Model.FBOrderStatus == 3 ? "selected" : "")>失敗</option>
+                                                    </select>
+                                                </section>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <a class="btn btn-default" href="@Url.Action("FBOrder", "OrderMs")">
+                                                取消
+                                            </a>
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="fa fa-save"></i>
+                                                確認
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- end widget content -->
+
+                    </div>
+                    <!-- end widget div -->
+
+                </div>
+                <!-- end widget -->
+
+            </article>
+            <!-- WIDGET END -->
+
+        </div>
+        <!-- end row -->
+
+    </section>
+    <!-- end widget grid -->
+
+</div>
+@section scripts {
+    <script>
+        var hash = window.location.hash;
+        $('ul.nav-tabs li').eq(hash.substr(1)).addClass('active');
+        $('.tab-pane').eq(hash.substr(1)).addClass('active');
+
+        $(document).ready(function () {
+            $('#Istest').change(function () {
+                var Count;
+                if ($('#count').val() != null) {
+                    Count = $('#count').val();
+                }
+                else {
+                    Count = 0;
+                }
+                var Istest = $("#Istest").prop("checked");
+                if (Istest == true) {
+                    $('#Cost').html('0');
+                    $('#Price').html('0');
+                }
+                else {
+                    var Productid = $('#Productid').val();
+                    if (Productid != null) {
+                        $.ajax({
+                            url: '@Url.Action("Productcost", "Ajax")',
+                            data: { Productid: Productid },
+                            type: 'post',
+                            cache: false,
+                            async: false,
+                            datatype: 'json',
+                            success: function (data) {
+                                console.log(data);
+                                $('#Cost').html((parseInt(data) * Count));
+                                $.ajax({
+                                    url: '@Url.Action("Productprice", "Ajax")',
+                                    data: { Productid: Productid },
+                                    type: 'post',
+                                    cache: false,
+                                    async: false,
+                                    datatype: 'json',
+                                    success: function (data) {
+                                        console.log(data);
+                                        $('#Price').html((parseInt(data) * Count));
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });            
+        });      
+        @*$(document).ready(function () {
+            $('#Categoryid').change(function () {
+                var Categoryid = $('#Categoryid').val();
+                $.ajax({
+                    url: '@Url.Action("FBProduct", "Ajax")',
+                    data: { Categoryid: Categoryid },
+                    type: 'post',
+                    cache: false,
+                    async: false,
+                    datatype: 'json',
+                    success: function (data) {
+                        console.log(data);
+                        if (data.length > 0) {
+                            $('#Productid').empty();
+                            $.each(data, function (i, item) {
+                                $('#Productid').append('<option value="' + item.Productid + '">' + item.Productname + '</option>');
+                            });
+                        }
+                    }
+                })
+            })
+        })*@
+    </script>
+}

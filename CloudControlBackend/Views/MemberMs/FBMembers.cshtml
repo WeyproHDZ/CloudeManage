@@ -1,0 +1,346 @@
+﻿@{
+    var data = ViewBag.FBMembers as IPagedList<FBMembers>;
+    //var data = ViewBag.FBMembers;
+    int x = 0;
+    int number = 1;
+    @*if (TempData.ContainsKey("message"))
+    {
+        <script>alert('@TempData["message"]');</script>
+    }*@
+}
+@model FBMembers
+
+<!-- MAIN CONTENT -->
+<div id="content">
+
+    <!-- widget grid -->
+    <section id="widget-grid" class="">
+        <!-- row -->
+        <div class="row">
+            <!-- NEW WIDGET START -->
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                <div class="well padding-10">
+
+                    <!-- widget content -->
+                    <div class="widget-body">
+                        @Html.Partial("_Upload_FBMembersFile")
+                        @using (Html.BeginForm("FBMembers", "MemberMs", FormMethod.Post, new { @id = "form" }))
+                        {
+                            <div class="widget-body-toolbar">
+                                <div class="row">
+                                    <div class="form-inline">
+                                        <div class="col-sm-10">
+                                            帳號篩選 : <input type="text" name="account" id="account" class="form-control" value="@(ViewBag.Account)" />
+                                            <br />
+                                            產品篩選 : @Html.DropDownListFor(model => model.Productid, null, "--請選擇--", new Dictionary<string, object>() { { "class", "form-control" } })
+                                            <br />
+                                            帳號型態 : 
+                                            <select class="form-control" name="Isenable">
+                                                <option value="3">--請選擇--</option>
+                                                <option value="1">正式帳號</option>
+                                                <option value="2">預備帳號</option>
+                                            </select>
+                                            <br />
+                                            驗證狀態 :
+                                            <select class="form-control" name="Status">
+                                                <option value="3">--請選擇--</option>
+                                                <option value="1">已驗證</option>
+                                                <option value="2">需驗證</option>
+                                            </select>
+                                            @*@<br />等級篩選 :
+                                            @Html.DropDownListFor(model => model.Levelid, null, "--請選擇--", new Dictionary<string, object>() { { "class", "form-control" } })
+                                            <br />性別篩選 :
+                                            <select class="form-control" name="Sex">
+                                                <option value="3">--請選擇--</option>
+                                                <option value="0" @(ViewBag.Sex == 0 ? "Selected" : "")>未設定</option>
+                                                <option value="1" @(ViewBag.Sex == 1 ? "Selected" : "")>男性</option>
+                                                <option value="2" @(ViewBag.Sex == 2 ? "Selected" : "")>女性</option>
+                                            </select>
+                                            <br />驗證狀態 :
+                                            <input type="checkbox" name="Status" id="Status" value="0" group="0"><i class="fa fa-question" aria-hidden="true" style="color:black"></i>
+                                            <input type="checkbox" name="Status" id="Status" value="1" group="0"><i class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                            <input type="checkbox" name="Status" id="Status" value="2" group="0"><i class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                            <br />*@
+                                            <button class="btn btn-info btn-labeled" type="submit"><span class="btn-label"><i class="fa fa-search"></i></span>查詢</button>
+                                            
+                                            @*<button class="btn btn-info btn-labeled" type="button" onclick="SetProduct()"><span class="btn-label"><i class="fa fa-search"></i></span>設定產品</button>*@
+                                            <button class="btn btn-info btn-labeled" type="button" id="toofficialchecked" onclick="ToOfficialFBMembersChecked()"><span class="btn-label"><i class="fa fa-repeat"></i></span>轉正式</button>
+                                            <button class="btn btn-danger btn-labeled" type="button" id="deletechecked" onclick="DeleteFBMembersChecked()"><span class="btn-label"><i class="fa fa-trash-o"></i></span>刪除</button>
+                                            @*<button class="btn btn-danger btn-labeled" type="button" id="blackchecked" onclick="BlackChecked()"><span class="btn-label"><i class="fa fa-ban"></i></span>加入黑名單</button>*@
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @*<a class="btn btn-warning btn-labeled" id="authmember" onclick="auth()" href="@Url.Action("AllAuthMembers", "MemberMs")" target="_blank"> <span class="btn-label"><i class="fa fa-repeat"></i></span>驗證會員(all) </a>
+                                            <a class="btn btn-warning btn-labeled" id="authmember" onclick="auth()" href="@Url.Action("AuthMembers", "MemberMs")" target="_blank"> <span class="btn-label"><i class="fa fa-repeat"></i></span>驗證會員(v) & (?) </a>
+                                            <a class="btn btn-warning btn-labeled" id="authmember" onclick="auth()" href="@Url.Action("ErrorAuthMembers", "MemberMs")" target="_blank"> <span class="btn-label"><i class="fa fa-repeat"></i></span>驗證會員(x) </a>*@
+                                            <a class="btn btn-success btn-labeled" href="@Url.Action("AddFBMembers", "Members")"> <span class="btn-label"><i class="fa fa-plus"></i></span>新增Facebook會員 </a>
+                                            <a class="btn btn-primary btn-labeled" href="~/FileUpload/FB/example.xlsx"><span class="btn-label"><i class="fa fa-download"></i></span>範例表格</a>
+                                            <button class="btn btn-primary btn-labeled" data-toggle="modal" data-target="#UploadModal"><span class="btn-label"><i class="fa fa-upload"></i></span>匯入資料</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status_number">                                    
+                                    <i class="fa fa-check" aria-hidden="true" style="color:green">@ViewBag.Check 人</i>
+                                    <i class="fa fa-times" aria-hidden="true" style="color:red">@ViewBag.Times 人</i>
+                                    預備 : @ViewBag.ReservedNumber
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+
+                                <table id="dt_basic" class="table table-hover table-bordered table-striped smart-form">
+                                    <thead>
+                                        <tr>
+                                            <th width="3%" class="text-center">編號</th>                                            
+                                            <th width="3%" class="text-center"><input type="checkbox" name="Check" id="CheckAll" onclick="Checkall()"></th>
+                                            <th width="10%" class="text-center">帳號型態</th>
+                                            <th width="5%" class="text-center">驗證狀態</th>                                           
+                                            <th width="10%" class="text-center">產品名稱</th>
+                                            @*<th width="3%" class="text-center">層級</th>
+                                            <th width="3%" class="text-center">性別</th>*@
+                                            <th class="text-center">Facebook帳號</th>
+                                            <th width="10%" class="text-center">姓名</th>
+                                            <th width="5%" class="text-center">連結</th>
+                                            <th width="5%" class="text-center">Cookie</th>
+                                            <th class="text-center">建立日期</th> 
+                                            <th class="text-center">使用次數</th>                                 
+                                            @*<th width="10%" class="text-center">驗證帳號</th>*@
+                                            <th width="10%" class="text-center">編輯</th>
+                                            <th width="10%" class="text-center">刪除</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (FBMembers entity in data)
+                                        {
+                                            <tr>
+                                                <td class="text-center">@(((ViewBag.pageNumber - 1) * 100) + number)</td>
+                                                <td><input type="checkbox" name="@entity.FBMemberid" value="1" id="Check"></td>
+                                                @if (entity.Isenable == 1)
+                                                {
+                                                    <td class="text-center">正式帳號</td>
+                                                }
+                                                else if (entity.Isenable == 2)
+                                                {
+                                                    <td class="text-center">預備帳號</td>
+                                                }
+                                                @if (entity.FBMembersLoginlog.OrderByDescending(a => a.Createdate).FirstOrDefault().Status == 0)
+                                                {
+                                                    <td class="text-center"><i class="fa fa-question" aria-hidden="true" style="color:black"></i></td>
+                                                }
+                                                else if (entity.FBMembersLoginlog.OrderByDescending(a => a.Createdate).FirstOrDefault().Status == 1)
+                                                {
+                                                    <td class="text-center"><i class="fa fa-check" aria-hidden="true" style="color:green"></i></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center"><i class="fa fa-times" aria-hidden="true" style="color:red"></i></td>
+                                                }
+
+                                                @if (entity.Productid == null)
+                                                {
+                                                    <td class="text-center">未設定</td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center">@entity.Product.Productname</td>
+                                                }
+
+                                                @*<td class="text-center">@entity.Memberlevel.Levelname</td>
+                                                    @if (entity.Sex == 0)
+                                                    {
+                                                        <td class="text-center"><i class="fa fa-question" aria-hidden="true" style="color:black"></i></td>
+                                                    }
+                                                    else if (entity.Sex == 1)
+                                                    {
+                                                        <td class="text-center"><i class="fa fa-male" aria-hidden="true" style="color:blue"></i></td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td class="text-center"><i class="fa fa-female" aria-hidden="true" style="color:red"></i></td>
+                                                    }*@
+                                                <td class="text-center">@entity.FB_Account</td>
+                                                <td class="text-center">@entity.FB_Name</td>
+                                                <td class="text-center"><a href="@entity.Facebooklink" target="_blank">連結</a></td>
+                                                @if (String.IsNullOrEmpty(entity.Cookie))
+                                                {
+                                                    <td class="text-center"><i class="fa fa-times" aria-hidden="true"></i></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center"><i class="fa fa-check" aria-hidden="true"></i></td>
+                                                }
+                                                <td class="text-center">@entity.Createdate</td>
+                                                <td class="text-center">@entity.FBOrderlist.Count()</td>
+                                                @*<td class="text-center"><a href="@Url.Action("AuthByid", "MemberMs", new { Memberid = entity.Memberid })" class="btn btn-info btn-xs"><i class="fa fa-play"></i></a></td>*@
+                                                <td class="text-center"><a href="@Url.Action("EditFBMembers", "MemberMs", new { FBMemberid = entity.FBMemberid, p = ViewBag.pageNumber })" class="btn btn-info btn-xs"><i class="fa fa-edit"></i></a></td>
+                                                <td class="text-center"><a href="#" class="btn btn-danger btn-xs del" data-href="@Url.Action("DeleteFBMembers", "MemberMs", new { FBMemberid = entity.FBMemberid, p = ViewBag.pageNumber })" data-toggle="modal" data-target="#confirm-delete"><i class="fa fa-trash-o"></i></a></td>
+                                            </tr>
+                                            x++;
+                                            number++;
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        }
+                    </div>
+                    <!-- end widget content -->
+
+                    <div class="text-center">
+                        @Html.PagedListPager(list: data, generatePageUrl: page => Url.Action("FBMembers", new { p = page }))
+                    </div>
+                </div>
+
+            </article>
+            <!-- WIDGET END -->
+
+        </div>
+        <!-- end row -->
+
+    </section>
+    <!-- end widget grid -->
+
+</div>
+<!-- END MAIN CONTENT -->
+<!-- Modal -->
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">確認</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    確定要刪除嗎？
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    取消
+                </button>
+                <a href="#" class="btn btn-primary btn-ok">
+                    確定
+                </a>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+@section scripts {
+    <script>
+        //$(document).ready(function () {
+        //    $('#dt_basic').DataTable();
+        //});
+
+        function Checkall() {
+            if ($('#CheckAll').prop("checked")) {
+                $.each($('tr').find('input#Check'), function () {
+                    $(this).prop("checked", true);
+                });
+            }
+            else {
+                $.each($('tr').find('input#Check'), function () {
+                    $(this).prop("checked", false);
+                });
+            }            
+        }
+
+        /*** 批量刪除 ***/
+        function DeleteFBMembersChecked() {
+            var FBMemberid = [];
+            swal({
+                title:"確定要刪除嗎?",
+                showCancelButton: true,
+                confirmButtonText: '確定！',
+                cancelButtonText: '取消！',
+                type:'question',
+            }).then(function(e){
+                $.each($('tr').find('input#Check'), function () {
+                    if ($(this).prop('checked') == true) {
+                        FBMemberid.push($(this).attr("name"));  //塞到陣列中
+                    }
+                });
+                $.ajax({
+                    url: '@Url.Action("AjaxDeleteFBMembersChecked", "Ajax")',
+                    data: { FBMemberid: FBMemberid },
+                    type: 'post',
+                    dateType: 'json',
+                    success: function (response) {
+                        swal({
+                            title: "已成功刪除",
+                            type: "success"
+                        }).then(function (e) {
+                            location.reload();
+                        });
+                    }
+                });
+            })
+        }
+
+        /**** 轉正式帳號 *****/
+        function ToOfficialFBMembersChecked() {
+            var FBMemberid = [];
+            swal({
+                title: "確定要轉正式嗎?",
+                showCancelButton: true,
+                confirmButtonText: '確定！',
+                cancelButtonText: '取消！',
+                type: 'question',
+            }).then(function (e) {
+                $.each($('tr').find('input#Check'), function () {
+                    if ($(this).prop('checked') == true) {
+                        FBMemberid.push($(this).attr("name"));  //塞到陣列中
+                    }
+                });
+                $.ajax({
+                    url: '@Url.Action("AjaxToOfficialFBMembersChecked", "Ajax")',
+                    data: { FBMemberid: FBMemberid },
+                    type: 'post',
+                    dateType: 'json',
+                    success: function (response) {
+                        swal({
+                            title: "已成功轉入",
+                            type: "success"
+                        }).then(function (e) {
+                            location.reload();
+                        });
+                    }
+                });
+            })
+        }
+
+        /****** 設定產品 ******/
+        function SetProduct() {
+            var Productid = $("#Productid").val();
+            var FBMemberid = [];
+            swal({
+                title: "確定要轉入嗎?",
+                showCancelButton: true,
+                confirmButtonText: '確定！',
+                cancelButtonText: '取消！',
+                type: 'question',
+            }).then(function (e) {
+                $.each($('tr').find('input#Check'), function () {
+                    if ($(this).prop('checked') == true) {
+                        FBMemberid.push($(this).attr("name"));  //塞到陣列中
+                    }
+                });
+                $.ajax({
+                    url: '@Url.Action("AjaxSetFBMembersProduct", "Ajax")',
+                    data: { FBMemberid: FBMemberid, Productid: Productid },
+                    type: 'post',
+                    dateType: 'json',
+                    success: function (response) {
+                        swal({
+                            title: "已成功轉入",
+                            type: "success"
+                        }).then(function (e) {
+                            location.reload();
+                        });
+                    }
+                });
+            })
+        }
+    </script>
+}
