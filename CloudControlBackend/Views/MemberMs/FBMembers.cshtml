@@ -76,6 +76,7 @@
                                             <a class="btn btn-success btn-labeled" href="@Url.Action("AddFBMembers", "Members")"> <span class="btn-label"><i class="fa fa-plus"></i></span>新增Facebook會員 </a>
                                             <a class="btn btn-primary btn-labeled" href="~/FileUpload/FB/example.xlsx"><span class="btn-label"><i class="fa fa-download"></i></span>範例表格</a>
                                             <button class="btn btn-primary btn-labeled" data-toggle="modal" data-target="#UploadModal"><span class="btn-label"><i class="fa fa-upload"></i></span>匯入資料</button>
+                                            <button class="btn btn-info btn-labeled" type="button" id="checknumber" onclick="CheckFBMembersNumber()"><span class="btn-label"><i class="fa fa-book"></i></span>查看數量</button>
                                         </div>
                                     </div>
                                 </div>
@@ -278,6 +279,31 @@
             })
         }
 
+        /***** 確認FB數量 *****/
+        function CheckFBMembersNumber() {
+            $.ajax({
+                url: '@Url.Action("AjaxCheckFBMembersNumber", "Ajax")',
+                type: 'post',
+                dateType: 'json',
+                success: function (response) {
+                    var table = "";
+                    $.each(response, function (key, value) {
+                        table += "<tr>" +
+                                      "<td>" + value.Productname + "</td>" +
+                                      "<td>" + value.Productcount + "</td>" +
+                                      "<td>" + value.Productprepcount + "</td>" +
+                                  "</tr>";
+                    });
+                    swal({
+                        title: "數量",
+                        html: "<table id='dt_basic' class='table table-hover table-bordered table-striped smart-form'><tr><td>產品名稱</td><td>正式帳號數量</td><td>預備帳號數量</td></tr>" + table + "</table>",
+                        type: "success"
+                    }).then(function (e) {
+                        location.reload();
+                    });
+                }
+            });
+        }
         /**** 轉正式帳號 *****/
         function ToOfficialFBMembersChecked() {
             var FBMemberid = [];

@@ -11,7 +11,7 @@ namespace CloudControlBackend.Controllers
     public class AjaxController : BaseController
     {
         private CloudControlEntities db;
-        private ProductService productSerice;
+        private ProductService productService;
         private FBMembersService fbmembersService;
         private IGMembersService igmembersService;
         private YTMembersService ytmembersService;
@@ -21,7 +21,7 @@ namespace CloudControlBackend.Controllers
         public AjaxController()
         {
             db = new CloudControlEntities();
-            productSerice = new ProductService();
+            productService = new ProductService();
             fbmembersService = new FBMembersService();
             igmembersService = new IGMembersService();
             ytmembersService = new YTMembersService();
@@ -34,14 +34,14 @@ namespace CloudControlBackend.Controllers
         [HttpPost]
         public JsonResult Productcost(Guid Productid)
         {
-            Product product = productSerice.GetByID(Productid);
+            Product product = productService.GetByID(Productid);
             return this.Json(product.Cost);
         }
         /**** 取得產品售價 *****/
         [HttpPost]
         public JsonResult Productprice(Guid Productid)
         {
-            Product product = productSerice.GetByID(Productid);
+            Product product = productService.GetByID(Productid);
             return this.Json(product.Price);
         }
         /**** 存取訂單編號到Session(全選) ****/
@@ -82,7 +82,7 @@ namespace CloudControlBackend.Controllers
                     if (ordernumber.IndexOf("FB") != -1)
                     {
                         FBOrder fborder = fborderService.Get().Where(a => a.FBOrdernumber == ordernumber).FirstOrDefault();
-                        Product product = productSerice.GetByID(fborder.Productid);
+                        Product product = productService.GetByID(fborder.Productid);
                         if (fborder.Istest == true)
                         {
                             Cost += 0.0;
@@ -97,7 +97,7 @@ namespace CloudControlBackend.Controllers
                     else if (ordernumber.IndexOf("IG") != -1)
                     {
                         IGOrder igorder = igorderService.Get().Where(a => a.IGOrdernumber == ordernumber).FirstOrDefault();
-                        Product product = productSerice.GetByID(igorder.Productid);
+                        Product product = productService.GetByID(igorder.Productid);
                         if (igorder.Istest == true)
                         {
                             Cost += 0.0;
@@ -112,7 +112,7 @@ namespace CloudControlBackend.Controllers
                     else if (ordernumber.IndexOf("YT") != -1)
                     {
                         YTOrder ytorder = ytorderService.Get().Where(a => a.YTOrdernumber == ordernumber).FirstOrDefault();
-                        Product product = productSerice.GetByID(ytorder.Productid);
+                        Product product = productService.GetByID(ytorder.Productid);
                         if (ytorder.Istest == true)
                         {
                             Cost += 0.0;
@@ -135,7 +135,7 @@ namespace CloudControlBackend.Controllers
         [HttpPost]
         public JsonResult FBProduct(Guid Categoryid)
         {
-            IEnumerable<Product> producttemp = productSerice.Get().Where(a => a.Categoryid == Categoryid).ToList();
+            IEnumerable<Product> producttemp = productService.Get().Where(a => a.Categoryid == Categoryid).ToList();
             List<ProductList> List = new List<ProductList>();
             foreach (Product productList in producttemp)
             {
@@ -145,6 +145,29 @@ namespace CloudControlBackend.Controllers
                         Productid = productList.Productid,
                         Productname = productList.Productname
                     });
+            }
+            return this.Json(List);
+        }
+
+        /**** 確認FB數量 ***/
+        [HttpPost]
+        public JsonResult AjaxCheckFBMembersNumber()
+        {
+            Guid CategoryId = Guid.Parse("9f268158-09b1-4176-9088-a4a4af63d389");
+            IEnumerable<Product> ProductList = productService.Get().Where(a => a.Categoryid == CategoryId);
+            List<ProductNumber> List = new List<ProductNumber>();
+            foreach(Product Product in ProductList)            
+            {
+                int Count = fbmembersService.GetNoDel().Where(i => i.Isenable == 1).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
+                int PrepCount = fbmembersService.GetNoDel().Where(i => i.Isenable == 2).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
+                List.Add(
+                    new ProductNumber()
+                    {
+                        Productname = Product.Productname,
+                        Productcount = Count,
+                        Productprepcount = PrepCount
+                    }
+                );
             }
             return this.Json(List);
         }
@@ -239,5 +262,12 @@ namespace CloudControlBackend.Controllers
     {
         public Guid Productid { get; set; }
         public string Productname { get; set; }
+    }
+
+    public class ProductNumber
+    {
+        public string Productname { get; set; }
+        public int Productcount { get; set; }
+        public int Productprepcount { get; set; }
     }
 }
