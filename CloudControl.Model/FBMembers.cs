@@ -22,7 +22,7 @@ namespace CloudControl.Model
             this.FBOrder = new HashSet<FBOrder>();
         }
     
-        public int Isenable { get; set; }
+        public Nullable<int> Isenable { get; set; }
         public int Isdocker { get; set; }
         public System.Guid FBMemberid { get; set; }
         public Nullable<System.Guid> Productid { get; set; }
@@ -40,8 +40,8 @@ namespace CloudControl.Model
         public virtual ICollection<FBMembersLoginlog> FBMembersLoginlog { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBOrderlist> FBOrderlist { get; set; }
-        public virtual Product Product { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBOrder> FBOrder { get; set; }
+        public virtual Product Product { get; set; }
     }
 }

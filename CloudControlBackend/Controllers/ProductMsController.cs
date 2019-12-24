@@ -90,7 +90,7 @@ namespace CloudControlBackend.Controllers
         [CheckSession(IsAuth = true)]
         public ActionResult Product(int p = 1)
         {
-            var data = productService.Get().OrderByDescending(o => o.Createdate);
+            var data = productService.Get().OrderBy(o => o.Orders);
             ViewBag.pageNumber = p;
             ViewBag.Product = data.ToPagedList(pageNumber: p, pageSize: 20);
             /**** 類別選單 *****/
@@ -104,13 +104,13 @@ namespace CloudControlBackend.Controllers
         {
             if(Categoryid != null)
             {
-                var data = productService.Get().Where(a => a.Categoryid == Categoryid).OrderByDescending(o => o.Createdate);
+                var data = productService.Get().Where(a => a.Categoryid == Categoryid).OrderBy(o => o.Orders);
                 ViewBag.pageNumber = p;
                 ViewBag.Product = data.ToPagedList(pageNumber: p, pageSize: 20);
             }
             else
             {
-                var data = productService.Get().OrderByDescending(o => o.Createdate);
+                var data = productService.Get().OrderBy(o => o.Orders);
                 ViewBag.pageNumber = p;
                 ViewBag.Product = data.ToPagedList(pageNumber: p, pageSize: 20);
             }
@@ -131,7 +131,7 @@ namespace CloudControlBackend.Controllers
         [CheckSession(IsAuth = true)]
         public ActionResult AddProduct(Product product)
         {
-            if (TryUpdateModel(product, new string[] { "Categoryid" ,"Productname", "BreakTime", "Price", "Cost" }) && ModelState.IsValid)
+            if (TryUpdateModel(product, new string[] { "Categoryid" ,"Productname", "BreakTime", "Price", "Cost", "Orders" }) && ModelState.IsValid)
             {
                 product.Productid = Guid.NewGuid();
                 product.Createdate = dt_tw();
@@ -168,7 +168,7 @@ namespace CloudControlBackend.Controllers
         public ActionResult EditProduct(Guid Productid)
         {
             Product product = productService.GetByID(Productid);
-            if (TryUpdateModel(product, new string[] { "BreakTime", "Price", "Cost" }) && ModelState.IsValid)
+            if (TryUpdateModel(product, new string[] { "BreakTime", "Price", "Cost", "Orders" }) && ModelState.IsValid)
             {
                 productService.Update(product);
                 productService.SaveChanges();

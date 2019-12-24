@@ -45,7 +45,6 @@ namespace CloudControl.Model
         public virtual DbSet<FBMembersLoginlog> FBMembersLoginlog { get; set; }
         public virtual DbSet<IGOrder> IGOrder { get; set; }
         public virtual DbSet<YTOrder> YTOrder { get; set; }
-        public virtual DbSet<Product> Product { get; set; }
         public virtual DbSet<FBVMLog> FBVMLog { get; set; }
         public virtual DbSet<IGVMLog> IGVMLog { get; set; }
         public virtual DbSet<YTVMLog> YTVMLog { get; set; }
@@ -53,5 +52,6 @@ namespace CloudControl.Model
         public virtual DbSet<FBVMStatus> FBVMStatus { get; set; }
         public virtual DbSet<IGVMStatus> IGVMStatus { get; set; }
         public virtual DbSet<YTVMStatus> YTVMStatus { get; set; }
+        public virtual DbSet<Product> Product { get; set; }
     }
 }

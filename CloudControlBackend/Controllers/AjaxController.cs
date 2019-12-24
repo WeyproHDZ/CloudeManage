@@ -154,7 +154,7 @@ namespace CloudControlBackend.Controllers
         public JsonResult AjaxCheckFBMembersNumber()
         {
             Guid CategoryId = Guid.Parse("9f268158-09b1-4176-9088-a4a4af63d389");
-            IEnumerable<Product> ProductList = productService.Get().Where(a => a.Categoryid == CategoryId);
+            IEnumerable<Product> ProductList = productService.Get().Where(a => a.Categoryid == CategoryId).OrderBy(o => o.Orders);
             List<ProductNumber> List = new List<ProductNumber>();
             foreach(Product Product in ProductList)            
             {
