@@ -160,12 +160,14 @@ namespace CloudControlBackend.Controllers
             {
                 int Count = fbmembersService.GetNoDel().Where(i => i.Isenable == 1).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
                 int PrepCount = fbmembersService.GetNoDel().Where(i => i.Isenable == 2).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
+                int Death = fbmembersService.Get().Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 2).Where(p => p.Productid == Product.Productid).Count();
                 List.Add(
                     new ProductNumber()
                     {
                         Productname = Product.Productname,
                         Productcount = Count,
-                        Productprepcount = PrepCount
+                        Productprepcount = PrepCount,
+                        Productdeathcount = Death
                     }
                 );
             }
@@ -269,5 +271,6 @@ namespace CloudControlBackend.Controllers
         public string Productname { get; set; }
         public int Productcount { get; set; }
         public int Productprepcount { get; set; }
+        public int Productdeathcount { get; set; }
     }
 }

@@ -292,11 +292,12 @@
                                       "<td>" + value.Productname + "</td>" +
                                       "<td>" + value.Productcount + "</td>" +
                                       "<td>" + value.Productprepcount + "</td>" +
+                                      "<td>" + value.Productdeathcount + "</td>" +
                                   "</tr>";
                     });
                     swal({
                         title: "數量",
-                        html: "<table id='dt_basic' class='table table-hover table-bordered table-striped smart-form'><tr><td>產品名稱</td><td>正式帳號數量</td><td>預備帳號數量</td></tr>" + table + "</table>",
+                        html: "<table id='dt_basic' class='table table-hover table-bordered table-striped smart-form'><tr><td>產品名稱</td><td>正式帳號數量</td><td>預備帳號數量</td><td>死亡帳號數量</td></tr>" + table + "</table>",
                         type: "success"
                     }).then(function (e) {
                         location.reload();
