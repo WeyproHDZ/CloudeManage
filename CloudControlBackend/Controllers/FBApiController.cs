@@ -2076,7 +2076,7 @@ namespace CloudControlBackend.Controllers
             List<UpdateData> UpdateData = new List<UpdateData>();
             if(Id == "CloudControl_order")
             {
-                FBMembers fbmember = fbmembersService.Get().Where(a => a.FB_Account.Contains(Account)).FirstOrDefault();
+                FBMembers fbmember = fbmembersService.GetNoDel().Where(a => a.FB_Account.Contains(Account)).FirstOrDefault();
                 FBMembersLoginlog fbmemberloiglog = fbmembersloginlogService.Get().Where(a => a.FBMemberid == fbmember.FBMemberid).FirstOrDefault();
                 if (fbmemberloiglog != null)
                 {
