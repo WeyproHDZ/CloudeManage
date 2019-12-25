@@ -158,9 +158,9 @@ namespace CloudControlBackend.Controllers
             List<ProductNumber> List = new List<ProductNumber>();
             foreach(Product Product in ProductList)            
             {
-                int Count = fbmembersService.GetNoDel().Where(i => i.Isenable == 1).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
-                int PrepCount = fbmembersService.GetNoDel().Where(i => i.Isenable == 2).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
-                int Death = fbmembersService.Get().Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 2).Where(p => p.Productid == Product.Productid).Count();
+                int Count = fbmembersService.GetNoDel().Where(i => i.Isenable == 1).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
+                int PrepCount = fbmembersService.GetNoDel().Where(i => i.Isenable == 2).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
+                int Death = fbmembersService.Get().Where(a => a.FBMembersLoginlog.FirstOrDefault().Status == 2).Where(p => p.Productid == Product.Productid).Count();
                 List.Add(
                     new ProductNumber()
                     {

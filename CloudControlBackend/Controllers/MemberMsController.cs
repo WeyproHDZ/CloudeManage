@@ -52,8 +52,8 @@ namespace CloudControlBackend.Controllers
             //ViewBag.FBMembers = data;
 
             //ViewBag.Check = db.FBMembers.Include(x => x.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 1).Count();
-            ViewBag.Check = fbmembersService.Get().Include(a => a.FBMembersLoginlog).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 1).Count();
-            ViewBag.Times = fbmembersService.Get().Include(a => a.FBMembersLoginlog).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 2).Count();
+            ViewBag.Check = fbmembersService.Get().Include(a => a.FBMembersLoginlog).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status == 1).Count();
+            ViewBag.Times = fbmembersService.Get().Include(a => a.FBMembersLoginlog).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status == 2).Count();
             /**** FB 產品選單 ***/
             FBProductDropDownList();
             /**** 預備人選 ****/
@@ -84,16 +84,16 @@ namespace CloudControlBackend.Controllers
             /**** 驗證狀態 ****/
             if(Status != 3)
             {
-                data = data.Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == Status);
+                data = data.Where(a => a.FBMembersLoginlog.FirstOrDefault().Status == Status);
             }
             data = data.OrderByDescending(o => o.Createdate);
             ViewBag.pageNumber = p;
             ViewBag.FBMembers = data.ToPagedList(pageNumber: p, pageSize: 100);
             ViewBag.Account = Account;
-            ViewBag.Check = fbmembersService.Get().Include(a => a.FBMembersLoginlog).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 1).Count();
+            ViewBag.Check = fbmembersService.Get().Include(a => a.FBMembersLoginlog).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status == 1).Count();
 
             
-            ViewBag.Times = fbmembersService.Get().Include(a => a.FBMembersLoginlog).Where(a => a.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 2).Count();
+            ViewBag.Times = fbmembersService.Get().Include(a => a.FBMembersLoginlog).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status == 2).Count();
             /**** FB 產品選單 ***/
             FBProductDropDownList();
             /**** 預備人選 ****/
@@ -445,28 +445,50 @@ namespace CloudControlBackend.Controllers
                 if (sheet.GetRow(i) != null)
                 {
                     IGMembers igmember = new IGMembers();
-                    if (sheet.GetRow(i).GetCell(0).ToString() != "" && sheet.GetRow(i).GetCell(0).ToString() != null)
+                    try
+                    //if (sheet.GetRow(i).GetCell(0).ToString() != "" && sheet.GetRow(i).GetCell(0).ToString() != null)
                     {
-                        if (sheet.GetRow(i).GetCell(0).ToString() != null)
+                        try
                         {
-                            igmember.IG_Account = Regex.Replace(sheet.GetRow(i).GetCell(0).ToString(), @"[^a-z||A-Z||@||.||0-9]", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                            if (sheet.GetRow(i).GetCell(0).ToString() != "" && sheet.GetRow(i).GetCell(0).ToString() != null)
+                            {
+                                igmember.IG_Account = Regex.Replace(sheet.GetRow(i).GetCell(0).ToString(), @"[^a-z||A-Z||@||.||0-9]", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                            }
                         }
-                        if (sheet.GetRow(i).GetCell(1).ToString() != null)
+                        catch { }
+                        try
                         {
-                            igmember.IG_Password = sheet.GetRow(i).GetCell(1).ToString();
+                            if (sheet.GetRow(i).GetCell(1).ToString() != "" && sheet.GetRow(i).GetCell(1).ToString() != null)
+                            {
+                                igmember.IG_Password = sheet.GetRow(i).GetCell(1).ToString();
+                            }
                         }
-                        if (sheet.GetRow(i).GetCell(2).ToString() != null)
+                        catch { }                        
+                        try
                         {
-                            igmember.IG_Name = sheet.GetRow(i).GetCell(2).ToString();
-                        }                    
-                        if (sheet.GetRow(i).GetCell(3).ToString() != null)
-                        {
-                            igmember.Instagramlink = sheet.GetRow(i).GetCell(3).ToString();
+                            if (sheet.GetRow(i).GetCell(2).ToString() != "" && sheet.GetRow(i).GetCell(2).ToString() != null)
+                            {
+                                igmember.IG_Name = sheet.GetRow(i).GetCell(2).ToString();
+                            }
                         }
-                        if (sheet.GetRow(i).GetCell(4).ToString() != null)
+                        catch { } 
+                        try
                         {
-                            igmember.Cookie = sheet.GetRow(i).GetCell(4).ToString();
+                            if (sheet.GetRow(i).GetCell(3).ToString() != "" && sheet.GetRow(i).GetCell(3).ToString() != null)
+                            {
+                                igmember.Instagramlink = sheet.GetRow(i).GetCell(3).ToString();
+                            }
                         }
+                        catch { }
+                        try
+                        {
+                            if (sheet.GetRow(i).GetCell(4).ToString() != "" && sheet.GetRow(i).GetCell(4).ToString() != null)
+                            {
+                                igmember.Cookie = sheet.GetRow(i).GetCell(4).ToString();
+                            }
+                        }
+                        catch { }
+                        
                         igmember.IGMemberid = Guid.NewGuid();
                         igmember.Createdate = dt_tw();
                         igmember.Updatedate = dt_tw();
@@ -489,6 +511,7 @@ namespace CloudControlBackend.Controllers
                         /**** End LoginLog ***/
                         igmembersService.Create(igmember);
                     }
+                    catch { }
                 }
             }
             igmembersService.SaveChanges();

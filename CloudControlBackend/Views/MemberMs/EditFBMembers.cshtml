@@ -91,8 +91,8 @@
                                                 <label class="col-lg-2 control-label" for="title">帳號驗證</label>
                                                 <section class="col-lg-3">
                                                     <select class="form-control" id="Status" name="Status">
-                                                        <option value="1" @(Model.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 1 ? "selected" : "")>已驗證</option>
-                                                        <option value="2" @(Model.FBMembersLoginlog.OrderByDescending(o => o.Createdate).FirstOrDefault().Status == 2 ? "selected" : "")>需驗證</option>                                                        
+                                                        <option value="1" @(Model.FBMembersLoginlog.FirstOrDefault().Status == 1 ? "selected" : "")>已驗證</option>
+                                                        <option value="2" @(Model.FBMembersLoginlog.FirstOrDefault().Status == 2 ? "selected" : "")>需驗證</option>                                                        
                                                     </select>
                                                 </section>
                                             </div>
