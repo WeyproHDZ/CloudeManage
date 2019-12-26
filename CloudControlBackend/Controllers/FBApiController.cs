@@ -1587,7 +1587,7 @@ namespace CloudControlBackend.Controllers
                                 AccountList.Add(
                                     new Controllers.GetAccount()
                                     {
-                                        Account = fbmember.FB_Account
+                                        Memberid = fbmember.FBMemberid.ToString()
                                     }
                                 );
                             }
@@ -1690,7 +1690,7 @@ namespace CloudControlBackend.Controllers
                                 AccountList.Add(
                                     new GetAccount()
                                     {
-                                        Account = fbmember.FB_Account
+                                        Memberid = fbmember.FBMemberid.ToString()
                                     }
                                 );
                             }                            
@@ -1702,10 +1702,11 @@ namespace CloudControlBackend.Controllers
                                 AccountTemp.Add(
                                     new GetAccount()
                                     {
-                                        Account = entity.Account
+                                        Memberid = entity.Memberid
                                     }
                                 );
-                                FBMembers member = fbmembersService.Get().Where(a => a.FB_Account == entity.Account).FirstOrDefault();
+                                Guid FBMemberid = Guid.Parse(entity.Memberid);
+                                FBMembers member = fbmembersService.GetByID(FBMemberid);
                                 member.Lastdate = Now + 0;
                                 fbmembersService.SpecificUpdate(member, new string[] { "Lastdate" });
                             }
@@ -2173,13 +2174,13 @@ namespace CloudControlBackend.Controllers
             if(Id == "CloudControl_order")
             {
                 List<GetAccount> AccountList = new List<GetAccount>();
-                IEnumerable<FBMembers> fbmembers = fbmembersService.GetNoDel().Where(a => a.Productid == Productid);
+                IEnumerable<FBMembers> fbmembers = fbmembersService.GetNoDel().Where(a => a.Productid == Productid).Where(x => x.FBMembersLoginlog.FirstOrDefault().Status != 2);
                 foreach(FBMembers fbmember in fbmembers)
                 {
                     AccountList.Add(
                         new GetAccount()
                         {
-                            Account = fbmember.FB_Account,                         
+                            Memberid = fbmember.FBMemberid.ToString()                    
                         }
                     );
                 }
@@ -2206,14 +2207,14 @@ namespace CloudControlBackend.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetFBAccountDatail_OldCookie(string Id, string Account)
+        public JsonResult GetFBAccountDatail_OldCookie(string Id, string Memberid)
         {
-            Account = Regex.Replace(Account, @"[^a-z||A-Z||@||.||0-9]", "");
             List<AccountDetailStatus> AccountDetailStatus = new List<Controllers.AccountDetailStatus>();
             if(Id == "CloudControl_order")
             {
                 List<GetAccountDetail> GetAccountDetail = new List<Controllers.GetAccountDetail>();
-                FBMembers fbmember = fbmembersService.Get().Where(a => a.FB_Account.Contains(Account)).FirstOrDefault();
+                Guid FBMemberid = Guid.Parse(Memberid);
+                FBMembers fbmember = fbmembersService.GetByID(FBMemberid);
                 GetAccountDetail.Add(
                     new Controllers.GetAccountDetail()
                     {
@@ -2245,7 +2246,7 @@ namespace CloudControlBackend.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateFBAccount_NewCookie(string Id, string Memberid, string Cookie)
+        public JsonResult UpdateFBAccount_NewCookie(string Id, string Memberid, string Cookie, int Status)
         {
             List<UpdateData> UpdateData = new List<Controllers.UpdateData>();
             if(Id == "CloudControl_order")
@@ -2254,6 +2255,21 @@ namespace CloudControlBackend.Controllers
                 fbmember.Cookie = Cookie;
                 fbmembersService.SpecificUpdate(fbmember, new string[] { "Cookie" });
                 fbmembersService.SaveChanges();
+                FBMembersLoginlog fbmemberloiglog = fbmembersloginlogService.Get().Where(a => a.FBMemberid == fbmember.FBMemberid).FirstOrDefault();
+                if (fbmemberloiglog != null)
+                {
+                    fbmemberloiglog.Status = Status;
+                    fbmembersloginlogService.SpecificUpdate(fbmemberloiglog, new string[] { "Status" });
+                }
+                else
+                {
+                    FBMembersLoginlog newlog = new FBMembersLoginlog();
+                    newlog.FBMemberid = fbmember.FBMemberid;
+                    newlog.Createdate = DateTime.Now;
+                    newlog.Status = Status;
+                    fbmembersloginlogService.Create(newlog);
+                }
+                fbmembersloginlogService.SaveChanges();
                 UpdateData.Add(
                     new Controllers.UpdateData()
                     {
@@ -2458,7 +2474,7 @@ namespace CloudControlBackend.Controllers
     }
     public class GetAccount
     {
-        public string Account { get; set; }
+        public string Memberid { get; set; }
     }
     public class AccountStatus
     {
