@@ -2205,6 +2205,45 @@ namespace CloudControlBackend.Controllers
             }
         }
 
+        [HttpGet]
+        public JsonResult GetFBAccountDatail_OldCookie(string Id, string Account)
+        {
+            Account = Regex.Replace(Account, @"[^a-z||A-Z||@||.||0-9]", "");
+            List<AccountDetailStatus> AccountDetailStatus = new List<Controllers.AccountDetailStatus>();
+            if(Id == "CloudControl_order")
+            {
+                List<GetAccountDetail> GetAccountDetail = new List<Controllers.GetAccountDetail>();
+                FBMembers fbmember = fbmembersService.Get().Where(a => a.FB_Account.Contains(Account)).FirstOrDefault();
+                GetAccountDetail.Add(
+                    new Controllers.GetAccountDetail()
+                    {
+                        Account = fbmember.FB_Account,
+                        Memberid = fbmember.FBMemberid,
+                        Cookie = fbmember.Cookie,
+                        Password = fbmember.FB_Password
+                    }
+                );
+                AccountDetailStatus.Add(
+                    new Controllers.AccountDetailStatus()
+                    {
+                        Status = "Success",
+                        AccountDetailList = GetAccountDetail
+                    }
+                );
+                return this.Json(AccountDetailStatus, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                AccountDetailStatus.Add(
+                    new Controllers.AccountDetailStatus()
+                    {
+                        Status = "Error"
+                    }
+                );
+                return this.Json(AccountDetailStatus, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpPost]
         public JsonResult UpdateFBAccount_NewCookie(string Id, string Memberid, string Cookie)
         {
