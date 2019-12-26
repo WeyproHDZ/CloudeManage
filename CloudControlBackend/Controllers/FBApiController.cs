@@ -2124,12 +2124,13 @@ namespace CloudControlBackend.Controllers
         [HttpGet]
         public JsonResult Test_Api()
         {
-            FBOrder fborder = fborderService.Get().Where(a => a.FBOrdernumber == "FBOrder20191220111258252").FirstOrDefault();
-            IEnumerable<FBOrderlist> fborderlist = fborderlistService.Get().Where(a => a.FBOrderid == fborder.FBOrderid);
-            foreach(FBOrderlist orderlist in fborderlist)
+            IEnumerable<FBMembers> fbmembers = fbmembersService.GetNoDel();
+            foreach(FBMembers fbmember in fbmembers)
             {
-            
+                fbmember.FB_Account = fbmember.FB_Account.Replace(" ", "");
+                fbmembersService.SpecificUpdate(fbmember, new string[] { "FB_Account" });
             }
+            fbmembersService.SaveChanges();
             return this.Json("Success", JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -2163,7 +2164,77 @@ namespace CloudControlBackend.Controllers
             }
         }
         #endregion
+        #region --更新Cookie--
+        [HttpGet]
+        public JsonResult GetFBAccount_OldCookie(string Id)
+        {
+            Guid Productid = Guid.Parse("b93e5ee4-f946-4bb0-ad6a-8f379e704802");
+            List<AccountStatus> AccountStatus = new List<Controllers.AccountStatus>();
+            if(Id == "CloudControl_order")
+            {
+                List<GetAccount> AccountList = new List<GetAccount>();
+                IEnumerable<FBMembers> fbmembers = fbmembersService.GetNoDel().Where(a => a.Productid == Productid);
+                foreach(FBMembers fbmember in fbmembers)
+                {
+                    AccountList.Add(
+                        new GetAccount()
+                        {
+                            Account = fbmember.FB_Account,                         
+                        }
+                    );
+                }
 
+                AccountStatus.Add(
+                    new Controllers.AccountStatus()
+                    {
+                        Status = "Success",
+                        List = AccountList
+                    }
+                );
+                return this.Json(AccountStatus, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                AccountStatus.Add(
+                    new Controllers.AccountStatus()
+                    {
+                        Status = "Error"
+                    }
+                );
+                return this.Json(AccountStatus, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult UpdateFBAccount_NewCookie(string Id, string Memberid, string Cookie)
+        {
+            List<UpdateData> UpdateData = new List<Controllers.UpdateData>();
+            if(Id == "CloudControl_order")
+            {
+                FBMembers fbmember = fbmembersService.GetByID(Guid.Parse(Memberid));
+                fbmember.Cookie = Cookie;
+                fbmembersService.SpecificUpdate(fbmember, new string[] { "Cookie" });
+                fbmembersService.SaveChanges();
+                UpdateData.Add(
+                    new Controllers.UpdateData()
+                    {
+                        Status = "Success"
+                    }
+                );
+                return this.Json(UpdateData, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                UpdateData.Add(
+                    new Controllers.UpdateData()
+                    {
+                        Status = "Error"
+                    }
+                );
+                return this.Json(UpdateData, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion
         #region --辦Facebook帳號專區--
         public JsonResult GetUseragent(string Id)
         {
