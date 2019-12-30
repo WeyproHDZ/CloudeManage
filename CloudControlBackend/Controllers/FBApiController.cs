@@ -1089,7 +1089,7 @@ namespace CloudControlBackend.Controllers
                         int loop;
                         for (loop = 0; loop < MemberList.Count(); loop++)
                         {
-                            if (Member.FBMemberid.Equals(MemberList[loop].Memberid))
+                            if (Guid.Equals(Member.FBMemberid,MemberList[loop].Memberid))
                             {                                
                                 used = true;
                             }
@@ -1103,7 +1103,7 @@ namespace CloudControlBackend.Controllers
                                 Cookie = Member.Cookie.Replace("True", "true").Replace("False", "false").Replace("name", "Name").Replace("value", "Value").Replace("path", "Path").Replace("domain", "Domain").Replace("secure", "Secure").Replace("httpOnly", "IsHttpOnly").Replace("expiry", "Expiry");
                                 Cookie = Cookie.Replace("'", @"""");     // 將' 取代成 "
                             }
-                            
+
                             /**** 判斷這張單是否是留言訂單 ****/
                             if (product.Productid == Guid.Parse("f686d184-884c-4aa7-9f26-f8118ba7f990") || product.Productid == Guid.Parse("07408390-5f81-451a-9193-a93faaed1825"))
                             {
@@ -1113,8 +1113,8 @@ namespace CloudControlBackend.Controllers
                                 int messageConunt = messageService.Get().Where(a => a.Categoryid == fborder.Categoryid).Count();    // 該留言類別底下的留言數量
                                 Message[] message = messageService.Get().Where(a => a.Categoryid == fborder.Categoryid).ToArray();
                                 Random crandom = new Random();
-                                int rand = crandom.Next(0, messageConunt - 1);                                
-                                
+                                int rand = crandom.Next(0, messageConunt - 1);
+
                                 AccountList.Add(
                                     new get_member
                                     {
@@ -1143,6 +1143,7 @@ namespace CloudControlBackend.Controllers
                                 );
                             }
                             used = false;
+                            
                         }
                     }
                     /*** 可用人數小於該訂單所需人數 ****/
@@ -1187,8 +1188,19 @@ namespace CloudControlBackend.Controllers
                 {
                     /*** 更新會員紀錄 ***/
                     FBMembersLoginlog fbmemebrsloginlog = fbmembersloginlogService.Get().Where(a => a.FBMemberid == fbmembers.FBMemberid).FirstOrDefault();
-                    fbmemebrsloginlog.Status = 2;
-                    fbmembersloginlogService.SpecificUpdate(fbmemebrsloginlog, new string[] { "Stauts" });
+                    if (fbmemebrsloginlog != null)
+                    {
+                        fbmemebrsloginlog.Status = 2;
+                        fbmembersloginlogService.SpecificUpdate(fbmemebrsloginlog, new string[] { "Status" });
+                    }
+                    else
+                    {
+                        FBMembersLoginlog newlog = new FBMembersLoginlog();
+                        newlog.FBMemberid = fbmembers.FBMemberid;
+                        newlog.Createdate = DateTime.Now;
+                        newlog.Status = 2;
+                        fbmembersloginlogService.Create(newlog);
+                    }
                     fbmembersloginlogService.SaveChanges();
                     /**** 寫入TXT檔 *****/
                     using (StreamWriter sw = new StreamWriter(txt_filepath, true))
@@ -1204,8 +1216,19 @@ namespace CloudControlBackend.Controllers
                 {
                     /*** 更新會員紀錄 ***/
                     FBMembersLoginlog fbmemebrsloginlog = fbmembersloginlogService.Get().Where(a => a.FBMemberid == fbmembers.FBMemberid).FirstOrDefault();
-                    fbmemebrsloginlog.Status = 2;
-                    fbmembersloginlogService.SpecificUpdate(fbmemebrsloginlog, new string[] { "Stauts" });
+                    if (fbmemebrsloginlog != null)
+                    {
+                        fbmemebrsloginlog.Status = 2;
+                        fbmembersloginlogService.SpecificUpdate(fbmemebrsloginlog, new string[] { "Status" });
+                    }
+                    else
+                    {
+                        FBMembersLoginlog newlog = new FBMembersLoginlog();
+                        newlog.FBMemberid = fbmembers.FBMemberid;
+                        newlog.Createdate = DateTime.Now;
+                        newlog.Status = 2;
+                        fbmembersloginlogService.Create(newlog);
+                    }
                     fbmembersloginlogService.SaveChanges();
                     /**** 寫入TXT檔 *****/
                     using (StreamWriter sw = new StreamWriter(txt_filepath, true))
@@ -2174,15 +2197,19 @@ namespace CloudControlBackend.Controllers
             if(Id == "CloudControl_order")
             {
                 List<GetAccount> AccountList = new List<GetAccount>();
-                IEnumerable<FBMembers> fbmembers = fbmembersService.GetNoDel().Where(a => a.Productid == Productid).Where(x => x.FBMembersLoginlog.FirstOrDefault().Status != 2);
+                IEnumerable<FBMembers> fbmembers = fbmembersService.Get().Where(a => a.Productid == Productid).Where(x => x.FBMembersLoginlog.FirstOrDefault().Status != 2);
                 foreach(FBMembers fbmember in fbmembers)
                 {
-                    AccountList.Add(
-                        new GetAccount()
-                        {
-                            Memberid = fbmember.FBMemberid.ToString()                    
-                        }
-                    );
+                    if(fbmember.Cookie.IndexOf("c_user") != -1)
+                    {
+                        AccountList.Add(
+                           new GetAccount()
+                           {
+                               Memberid = fbmember.FBMemberid.ToString()
+                           }
+                       );
+                    }
+                   
                 }
 
                 AccountStatus.Add(
@@ -2214,7 +2241,7 @@ namespace CloudControlBackend.Controllers
             {
                 List<GetAccountDetail> GetAccountDetail = new List<Controllers.GetAccountDetail>();
                 Guid FBMemberid = Guid.Parse(Memberid);
-                FBMembers fbmember = fbmembersService.GetByID(FBMemberid);
+                FBMembers fbmember = fbmembersService.GetByID(FBMemberid);                
                 GetAccountDetail.Add(
                     new Controllers.GetAccountDetail()
                     {
