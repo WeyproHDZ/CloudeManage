@@ -31,9 +31,10 @@
                                         類別篩選 :
                                         @Html.DropDownListFor(model => model.Categoryid, null, "--請選擇--", new Dictionary<string, object>() { { "class", "form-control" } })
                                         <button class="btn btn-info btn-labeled" type="submit"><span class="btn-label"><i class="fa fa-search"></i></span>查詢</button>
+                                        <button class="btn btn-danger btn-labeled" type="button" id="deletechecked" onclick="DeleteMessageChecked();"><span class="btn-label"><i class="fa fa-trash-o"></i></span>刪除</button>
                                     </div>
                                     <div class="col-sm-2">
-                                        <a class="btn btn-success btn-labeled" href="@Url.Action("AddMessage", "MessageMs")"> <span class="btn-label"><i class="fa fa-plus"></i></span>新增留言 </a>
+                                        <a class="btn btn-success btn-labeled" href="@Url.Action("AddMessage", "MessageMs")"> <span class="btn-label"><i class="fa fa-plus"></i></span>新增留言 </a>                                        
                                     </div>
                                 </div>
                             </div>
@@ -43,6 +44,7 @@
                             <table class="table table-hover table-bordered table-striped smart-form">
                                 <thead>
                                     <tr>
+                                        <th width="3%" class="text-center"><input type="checkbox" name="Check" id="CheckAll" onclick="Checkall()"></th>
                                         <th class="text-center">留言類別</th>
                                         <th class="text-center">留言名稱</th>
                                         <th width="10%" class="text-center">編輯</th>
@@ -53,6 +55,7 @@
                                     @foreach (Message entity in data)
                                     {
                                         <tr>
+                                            <td><input type="checkbox" name="@entity.Messageid" value="1" id="Check"></td>
                                             <td class="text-center">@entity.CategoryMessage.CategoryName</td>
                                             <td class="text-center">@entity.MessageName</td>
                                             <td class="text-center"><a href="@Url.Action("EditMessage", "MessageMs", new { Messageid = entity.Messageid, p = ViewBag.pageNumber })" class="btn btn-info btn-xs"><i class="fa fa-edit"></i></a></td>
@@ -109,3 +112,55 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+@section scripts {
+    <script>
+        //$(document).ready(function () {
+        //    $('#dt_basic').DataTable();
+        //});
+
+        function Checkall() {
+            if ($('#CheckAll').prop("checked")) {
+                $.each($('tr').find('input#Check'), function () {
+                    $(this).prop("checked", true);
+                });
+            }
+            else {
+                $.each($('tr').find('input#Check'), function () {
+                    $(this).prop("checked", false);
+                });
+            }
+        }
+
+        /*** 批量刪除 ***/
+        function DeleteMessageChecked() {
+            var Messageid = [];
+            swal({
+                title: "確定要刪除嗎?",
+                showCancelButton: true,
+                confirmButtonText: '確定！',
+                cancelButtonText: '取消！',
+                type: 'question',
+            }).then(function (e) {
+                $.each($('tr').find('input#Check'), function () {
+                    if ($(this).prop('checked') == true) {
+                        Messageid.push($(this).attr("name"));  //塞到陣列中
+                    }
+                });
+                $.ajax({
+                    url: '@Url.Action("AjaxDeleteMessageChecked", "Ajax")',
+                    data: { Messageid: Messageid },
+                    type: 'post',
+                    dateType: 'json',
+                    success: function (response) {
+                        swal({
+                            title: "已成功刪除",
+                            type: "success"
+                        }).then(function (e) {
+                            location.reload();
+                        });
+                    }
+                });
+            })
+        }
+    </script>
+}

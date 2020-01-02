@@ -1111,9 +1111,7 @@ namespace CloudControlBackend.Controllers
                                 Guid CategortMessageid = categorymessageService.GetByID(fborder.Categoryid).Categoryid;
                                 /*** 撈取該留言類別底下的留言 ***/
                                 int messageConunt = messageService.Get().Where(a => a.Categoryid == fborder.Categoryid).Count();    // 該留言類別底下的留言數量
-                                Message[] message = messageService.Get().Where(a => a.Categoryid == fborder.Categoryid).ToArray();
-                                Random crandom = new Random();
-                                int rand = crandom.Next(0, messageConunt - 1);
+                                IEnumerable<Message> message = messageService.Get().Where(a => a.Categoryid == fborder.Categoryid).OrderBy(o => Guid.NewGuid());                                
 
                                 AccountList.Add(
                                     new get_member
@@ -1124,7 +1122,7 @@ namespace CloudControlBackend.Controllers
                                         Useragent_phone = Member.Useragent,
                                         Cookie = Cookie,
                                         Duedate = (Now + 3600),
-                                        Message = message[rand].MessageName
+                                        Message = message.FirstOrDefault().MessageName
                                     }
                                 );
                             }
@@ -1458,6 +1456,7 @@ namespace CloudControlBackend.Controllers
                                     }
                                 }
                             );
+                            break;
                         }
                     }
                     if (OrderStatus.Count() > 0)
@@ -2148,14 +2147,11 @@ namespace CloudControlBackend.Controllers
         [HttpGet]
         public JsonResult Test_Api()
         {
-            IEnumerable<FBMembers> fbmembers = fbmembersService.GetNoDel();
-            foreach(FBMembers fbmember in fbmembers)
-            {
-                fbmember.FB_Account = fbmember.FB_Account.Replace(" ", "");
-                fbmembersService.SpecificUpdate(fbmember, new string[] { "FB_Account" });
-            }
-            fbmembersService.SaveChanges();
-            return this.Json("Success", JsonRequestBehavior.AllowGet);
+            Message[] messagelist = messageService.Get().ToArray();
+            int messageCount = messageService.Get().Count();
+            Random rnd = new Random();
+            string message = messagelist[rnd.Next(0, messageCount -1)].MessageName;
+            return this.Json(message, JsonRequestBehavior.AllowGet);
         }
         #endregion
         #region --寄信--

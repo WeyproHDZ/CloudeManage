@@ -12,6 +12,7 @@ namespace CloudControlBackend.Controllers
     {
         private CloudControlEntities db;
         private ProductService productService;
+        private MessageService messageService;
         private FBMembersService fbmembersService;
         private IGMembersService igmembersService;
         private YTMembersService ytmembersService;
@@ -22,6 +23,7 @@ namespace CloudControlBackend.Controllers
         {
             db = new CloudControlEntities();
             productService = new ProductService();
+            messageService = new MessageService();
             fbmembersService = new FBMembersService();
             igmembersService = new IGMembersService();
             ytmembersService = new YTMembersService();
@@ -43,6 +45,22 @@ namespace CloudControlBackend.Controllers
         {
             Product product = productService.GetByID(Productid);
             return this.Json(product.Price);
+        }
+        /**** 批量刪除留言 *****/
+        [HttpPost]
+        public JsonResult AjaxDeleteMessageChecked(Guid[] Messageid)
+        {
+            if (Messageid != null)
+            {
+                foreach (Guid thismessageid in Messageid)
+                {
+                    Message message = messageService.GetByID(thismessageid);
+                    messageService.Delete(message);
+                }
+                messageService.SaveChanges();
+            }
+
+            return this.Json("Success");
         }
         /**** 存取訂單編號到Session(全選) ****/
         [HttpPost]
