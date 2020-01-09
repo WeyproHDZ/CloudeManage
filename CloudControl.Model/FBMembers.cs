@@ -35,13 +35,14 @@ namespace CloudControl.Model
         public Nullable<long> Lastdate { get; set; }
         public Nullable<System.DateTime> Updatedate { get; set; }
         public Nullable<System.DateTime> Createdate { get; set; }
+        public int Isnew { get; set; }
     
+        public virtual Product Product { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBMembersLoginlog> FBMembersLoginlog { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBOrderlist> FBOrderlist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBOrder> FBOrder { get; set; }
-        public virtual Product Product { get; set; }
     }
 }

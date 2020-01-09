@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using CloudControl.Model;
 using CloudControl.Service;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace CloudControlBackend.Controllers
 {
@@ -406,10 +407,11 @@ namespace CloudControlBackend.Controllers
                 {
                     foreach (IGOrderlist list in igorderlist)
                     {
+                        string Account = Regex.Replace(list.IGMembers.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                         MemberList.Add(
                         new get_old_member
                         {
-                            Memberid = Guid.Parse(list.IGMemberid.ToString())
+                            Account = Account
                         });
                     }
                 }
@@ -422,12 +424,12 @@ namespace CloudControlBackend.Controllers
                         IEnumerable<IGOrderlist> old_igorderlist = igorderlistService.Get().Where(a => a.IGOrderid == thisold_igorder.IGOrderid);
                         foreach (IGOrderlist thisold_igorderlist in old_igorderlist)
                         {
+                            string Account = Regex.Replace(thisold_igorder.IGMembers.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                             MemberList.Add(
-                                new get_old_member
-                                {
-                                    Memberid = Guid.Parse(thisold_igorderlist.IGMemberid.ToString())
-                                }
-                            );
+                            new get_old_member
+                            {
+                                Account = Account
+                            });
                         }
                     }
                 }
@@ -442,7 +444,7 @@ namespace CloudControlBackend.Controllers
                         int loop;
                         for (loop = 0; loop < MemberList.Count(); loop++)
                         {
-                            if (Member.IGMemberid == MemberList[loop].Memberid)
+                            if (Member.IG_Account == MemberList[loop].Account)
                             {
                                 used = true;
                             }

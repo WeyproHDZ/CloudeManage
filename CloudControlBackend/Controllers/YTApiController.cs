@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using CloudControl.Model;
 using CloudControl.Service;
 using System.IO;
-
+using System.Text.RegularExpressions;
 
 namespace CloudControlBackend.Controllers
 {
@@ -427,10 +427,11 @@ namespace CloudControlBackend.Controllers
                 {
                     foreach (YTOrderlist list in ytorderlist)
                     {
+                        string Account = Regex.Replace(list.YTMembers.YT_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                         MemberList.Add(
                         new get_old_member
                         {
-                            Memberid = Guid.Parse(list.YTMemberid.ToString())
+                            Account = Account
                         });
                     }
                 }
@@ -443,12 +444,12 @@ namespace CloudControlBackend.Controllers
                         IEnumerable<YTOrderlist> old_ytorderlist = ytorderlistService.Get().Where(a => a.YTOrderid == thisold_ytorder.YTOrderid);
                         foreach (YTOrderlist thisold_ytorderlist in old_ytorderlist)
                         {
+                            string Account = Regex.Replace(thisold_ytorder.YTMembers.YT_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                             MemberList.Add(
-                                new get_old_member
-                                {
-                                    Memberid = Guid.Parse(thisold_ytorderlist.YTMemberid.ToString())
-                                }
-                            );
+                            new get_old_member
+                            {
+                                Account = Account
+                            });
                         }
                     }
                 }
@@ -463,7 +464,7 @@ namespace CloudControlBackend.Controllers
                         int loop;
                         for (loop = 0; loop < MemberList.Count(); loop++)
                         {
-                            if (Member.YTMemberid == MemberList[loop].Memberid)
+                            if (Member.YT_Account == MemberList[loop].Account)
                             {
                                 used = true;
                             }

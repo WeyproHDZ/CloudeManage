@@ -45,7 +45,7 @@ namespace CloudControlBackend.Controllers
         }
 
         // GET: OrderMs
-        /*** FB訂單管理 查詢/新增/修改/刪除/完成名單/重做/收回/補充 ****/
+        /*** FB訂單管理 查詢/新增/修改/刪除/完成名單/補充/收回 ****/
         [CheckSession(IsAuth = true)]
         public ActionResult FBOrder(int p = 1)
         {
@@ -189,6 +189,8 @@ namespace CloudControlBackend.Controllers
         {
             var data = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).OrderByDescending(o => o.FBMembers.FB_Name);
             ViewBag.pageNumber = p;
+            ViewBag.LiveNumber = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status != 2).Count();
+            ViewBag.DeathNumber = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status == 2).Count();
             ViewBag.FBOrderid = FBOrderid;
             ViewBag.FBOrderlist = data.ToPagedList(pageNumber: p, pageSize: 20);
             return View();
@@ -200,7 +202,8 @@ namespace CloudControlBackend.Controllers
         {
             FBOrder fborder = fborderService.GetByID(FBOrderid);
             fborder.FBOrderStatus = 0;  // 將訂單改為等待中
-            fborder.Remains = fborder.Count; // 剩餘數量改為下單數量
+            /*** 補充數量為 下單數量-完成數量 ****/
+            fborder.Remains = fborder.Count - fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).Where(x => x.FBMembers.FBMembersLoginlog.FirstOrDefault().Status != 2).Count();
             /*** 將完成名單的會員Docker關閉 ****/
             IEnumerable<FBMembers> FBMembers = fbmembersService.Get().Where(a => a.Isdocker == 1);
             foreach (FBMembers FBMember in FBMembers)

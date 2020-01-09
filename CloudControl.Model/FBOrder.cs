@@ -38,12 +38,12 @@ namespace CloudControl.Model
         public Nullable<System.DateTime> Createdate { get; set; }
     
         public virtual CategoryMessage CategoryMessage { get; set; }
-        public virtual FBMembers FBMembers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBVMLog> FBVMLog { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBOrderlist> FBOrderlist { get; set; }
         public virtual Product Product { get; set; }
         public virtual Product Product1 { get; set; }
+        public virtual FBMembers FBMembers { get; set; }
     }
 }

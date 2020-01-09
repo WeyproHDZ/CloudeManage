@@ -83,11 +83,11 @@
                                             <th width="7%" class="text-center">完成數量</th>
                                             <th width="5%" class="text-center">成本</th>
                                             <th width="5%" class="text-center">售價</th>
-                                            @*<th width="5%" class="text-center">死亡數量</th>*@
+                                            <th width="5%" class="text-center">死亡人數</th>
                                             <th width="5%" class="text-center">網址</th>
                                             <th width="10%" class="text-center">訂單狀態</th>
                                             <th width="7%" class="text-center">完成名單</th>
-                                            <th width="5%" class="text-center">重做</th>
+                                            <th width="5%" class="text-center">補充</th>
                                             <th width="5%" class="text-center">收回</th> 
                                             <th width="5%" class="text-center">編輯</th>
                                             <th width="5%" class="text-center">刪除</th>
@@ -104,17 +104,18 @@
                                                 <td class="text-center">@entity.Createdate</td>
                                                 <td class="text-center">@entity.Count</td>
                                                 <td class="text-center">@entity.Remains</td>
-                                                <td class="text-center">@(entity.Count - entity.Remains)</td>
+                                                <td class="text-center">@entity.FBOrderlist.Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status != 2).Count()</td>
                                                 @if (entity.Istest == true)
                                                 {
-                                                    <td class="text-center">0</td>
+                                                    <td class="text-center">@(entity.Product.Cost * entity.FBOrderlist.Count())</td>
                                                     <td class="text-center">0</td>
                                                 }
                                                 else
                                                 {
-                                                    <td class="text-center">@(entity.Product.Cost * entity.Count)</td>
+                                                    <td class="text-center">@(entity.Product.Cost * entity.FBOrderlist.Count())</td>
                                                     <td class="text-center">@(entity.Product.Price * entity.Count)</td>
                                                 }
+                                                <td class="text-center">@entity.FBOrderlist.Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status == 2).Count()</td>
                                                 <td class="text-center"><a href="@entity.Url" target="_blank">網址</a></td>
                                                 @switch (entity.FBOrderStatus)
                                                 {

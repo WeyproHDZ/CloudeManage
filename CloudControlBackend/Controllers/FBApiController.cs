@@ -1052,35 +1052,35 @@ namespace CloudControlBackend.Controllers
                 {
                     foreach(FBOrderlist list in fborderlist)
                     {
+                        string Account = Regex.Replace(list.FBMembers.FB_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                         MemberList.Add(
                         new get_old_member
                         {
-                            Memberid = Guid.Parse(list.FBMemberid.ToString())
+                            Account = Account
                         });
                     }
                 }
-
                 /*** 將同網址的訂單的完成訂單裡的人排除掉 ****/
                 if(old_fborder != null)
                 {
                     foreach (FBOrder thisold_fborder in old_fborder)
                     {
-                        IEnumerable<FBOrderlist> old_fborderlist = fborderlistService.Get().Where(a => a.FBOrderid == thisold_fborder.FBOrderid);
+                        IEnumerable<FBOrderlist> old_fborderlist = fborderlistService.Get().Where(a => a.FBOrderid == thisold_fborder.FBOrderid);                 
                         foreach (FBOrderlist thisold_fborderlist in old_fborderlist)
                         {
+                            string Account = Regex.Replace(thisold_fborderlist.FBMembers.FB_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                             MemberList.Add(
                                 new get_old_member
                                 {
-                                    Memberid = Guid.Parse(thisold_fborderlist.FBMemberid.ToString())
+                                    Account = Account
                                 }
                             );
                         }
                     }
                 }
                 List<get_member> AccountList = new List<get_member>();
-                Random rnd = new Random();
                 //IEnumerable<FBMembers> FBMembers = fbmembersService.Get().Where(a => a.Lastdate <= Now).Where(x => x.FBMembersLoginlog.OrderByDescending(c => c.Createdate).FirstOrDefault().Status != 2).Where(x => x.Productid == fborder.Productid).OrderBy(o => o.Createdate).ToList();
-                IQueryable<FBMembers> FBMembers = fbmembersService.Get().Where(x => x.FBMembersLoginlog.OrderByDescending(c => c.Createdate).FirstOrDefault().Status != 2).Where(x => x.Productid == fborder.Productid).OrderBy(r => Guid.NewGuid());
+                IQueryable<FBMembers> FBMembers = fbmembersService.Get().Where(x => x.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(x => x.Productid == fborder.Productid).OrderBy(r => Guid.NewGuid());
                 if (FBMembers != null)
                 {                    
                     foreach (FBMembers Member in FBMembers)
@@ -1089,7 +1089,8 @@ namespace CloudControlBackend.Controllers
                         int loop;
                         for (loop = 0; loop < MemberList.Count(); loop++)
                         {
-                            if (Guid.Equals(Member.FBMemberid,MemberList[loop].Memberid))
+                            string Account = Regex.Replace(Member.FB_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                            if (Account.Contains(MemberList[loop].Account))
                             {                                
                                 used = true;
                             }
@@ -1140,10 +1141,14 @@ namespace CloudControlBackend.Controllers
                                     }
                                 );
                             }
-                            used = false;
-                            
                         }
+                        else
+                        {
+                            used = false;
+                        }
+                        
                     }
+                    //return this.Json(AccountList, JsonRequestBehavior.AllowGet);
                     /*** 可用人數小於該訂單所需人數 ****/
                     if (AccountList.Count() < number)
                     {
@@ -1200,6 +1205,15 @@ namespace CloudControlBackend.Controllers
                         fbmembersloginlogService.Create(newlog);
                     }
                     fbmembersloginlogService.SaveChanges();
+                    FBOrderlist fborderlist = new FBOrderlist();
+                    fborderlist.FBOrderlistid = Guid.NewGuid();
+                    fborderlist.FBMemberid = Guid.Parse(Memberid);
+                    fborderlist.FBAccount = fbmembers.FB_Account;
+                    fborderlist.FBOrderid = fborder.FBOrderid;
+                    fborderlist.Createdate = dt_tw();
+                    fborderlist.Updatedate = dt_tw();
+                    fborderlistService.Create(fborderlist);
+                    fborderlistService.SaveChanges();
                     /**** 寫入TXT檔 *****/
                     using (StreamWriter sw = new StreamWriter(txt_filepath, true))
                     {
@@ -1228,6 +1242,15 @@ namespace CloudControlBackend.Controllers
                         fbmembersloginlogService.Create(newlog);
                     }
                     fbmembersloginlogService.SaveChanges();
+                    FBOrderlist fborderlist = new FBOrderlist();
+                    fborderlist.FBOrderlistid = Guid.NewGuid();
+                    fborderlist.FBMemberid = Guid.Parse(Memberid);
+                    fborderlist.FBAccount = fbmembers.FB_Account;
+                    fborderlist.FBOrderid = fborder.FBOrderid;
+                    fborderlist.Createdate = dt_tw();
+                    fborderlist.Updatedate = dt_tw();
+                    fborderlistService.Create(fborderlist);
+                    fborderlistService.SaveChanges();
                     /**** 寫入TXT檔 *****/
                     using (StreamWriter sw = new StreamWriter(txt_filepath, true))
                     {
@@ -1792,14 +1815,15 @@ namespace CloudControlBackend.Controllers
         #endregion
         #region --取得帳號詳細資料--
         [HttpGet]
-        public JsonResult GetFBAccountDetail(string Id, string Account, string FBOrdernumber)
+        public JsonResult GetFBAccountDetail(string Id, string Memberid, string FBOrdernumber)
         {
             List<AccountDetailStatus> AccountDetailStatus = new List<Controllers.AccountDetailStatus>();
             List<GetAccountDetail> AccountDetailList = new List<GetAccountDetail>();
             if(Id == "CloudControl_order")
             {
+                Guid FBMemberid = Guid.Parse(Memberid);
                 FBOrder fborder = fborderService.Get().Where(a => a.FBOrdernumber == FBOrdernumber).FirstOrDefault();
-                FBMembers fbmember = fbmembersService.Get().Where(a => a.FB_Account == Account).FirstOrDefault();
+                FBMembers fbmember = fbmembersService.GetByID(FBMemberid);
                 Product product = productService.GetByID(fborder.Productid);
                 /*** 留言訂單 ***/
                 if (fborder.Productid == Guid.Parse("f686d184-884c-4aa7-9f26-f8118ba7f990") || fborder.Productid == Guid.Parse("07408390-5f81-451a-9193-a93faaed1825"))
@@ -2188,34 +2212,40 @@ namespace CloudControlBackend.Controllers
         [HttpGet]
         public JsonResult GetFBAccount_OldCookie(string Id)
         {
-            Guid Productid = Guid.Parse("b93e5ee4-f946-4bb0-ad6a-8f379e704802");
             List<AccountStatus> AccountStatus = new List<Controllers.AccountStatus>();
             if(Id == "CloudControl_order")
             {
+                Product product = productService.GetByID(Guid.Parse("0c020482-d76a-4213-b021-f8db0fe96489"));
                 List<GetAccount> AccountList = new List<GetAccount>();
-                IEnumerable<FBMembers> fbmembers = fbmembersService.Get().Where(a => a.Productid == Productid).Where(x => x.FBMembersLoginlog.FirstOrDefault().Status != 2);
-                foreach(FBMembers fbmember in fbmembers)
+                FBMembers fbmembers = fbmembersService.Get().Where(a => a.Isnew == 0).Where(p => p.Productid == product.Productid).FirstOrDefault();
+                if(fbmembers != null)
                 {
-                    if(fbmember.Cookie.IndexOf("c_user") != -1)
-                    {
-                        AccountList.Add(
-                           new GetAccount()
-                           {
-                               Memberid = fbmember.FBMemberid.ToString()
-                           }
-                       );
-                    }
-                   
-                }
+                     AccountList.Add(
+                        new GetAccount()
+                        {
+                            Memberid = fbmembers.FBMemberid.ToString()
+                        }
+                    );              
 
-                AccountStatus.Add(
-                    new Controllers.AccountStatus()
-                    {
-                        Status = "Success",
-                        List = AccountList
-                    }
-                );
-                return this.Json(AccountStatus, JsonRequestBehavior.AllowGet);
+                    AccountStatus.Add(
+                        new Controllers.AccountStatus()
+                        {
+                            Status = "Success",
+                            List = AccountList
+                        }
+                    );
+                    return this.Json(AccountStatus, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    AccountStatus.Add(
+                        new Controllers.AccountStatus()
+                        {
+                            Status = "Error"
+                        }
+                    );
+                    return this.Json(AccountStatus, JsonRequestBehavior.AllowGet);
+                }
             }
             else
             {
@@ -2243,7 +2273,6 @@ namespace CloudControlBackend.Controllers
                     {
                         Account = fbmember.FB_Account,
                         Memberid = fbmember.FBMemberid,
-                        Cookie = fbmember.Cookie,
                         Password = fbmember.FB_Password
                     }
                 );
@@ -2268,6 +2297,51 @@ namespace CloudControlBackend.Controllers
             }
         }
 
+        [HttpGet]
+        public JsonResult UpdateFBAccount_Link(string Id, string Facebooklink)
+        {
+            List<UpdateData> UpdateData = new List<Controllers.UpdateData>();
+            if(Id == "CloudControl_order")
+            {
+                FBMembers fbmember = fbmembersService.Get().Where(a => a.Facebooklink == Facebooklink).FirstOrDefault();
+                fbmember.Isnew = 1;
+                fbmembersService.SpecificUpdate(fbmember, new string[] {"Isnew" });
+                fbmembersService.SaveChanges();
+                FBMembersLoginlog fbmemberloiglog = fbmembersloginlogService.Get().Where(a => a.FBMemberid == fbmember.FBMemberid).FirstOrDefault();
+                if (fbmemberloiglog != null)
+                {
+                    fbmemberloiglog.Status = 2;
+                    fbmembersloginlogService.SpecificUpdate(fbmemberloiglog, new string[] { "Status" });
+                }
+                else
+                {
+                    FBMembersLoginlog newlog = new FBMembersLoginlog();
+                    newlog.FBMemberid = fbmember.FBMemberid;
+                    newlog.Createdate = DateTime.Now;
+                    newlog.Status = 2;
+                    fbmembersloginlogService.Create(newlog);
+                }
+                fbmembersloginlogService.SaveChanges();
+                UpdateData.Add(
+                    new Controllers.UpdateData()
+                    {
+                        Status = "Success"
+                    }
+                );
+                return this.Json(UpdateData, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                UpdateData.Add(
+                    new Controllers.UpdateData()
+                    {
+                        Status = "Error"
+                    }
+                );
+                return this.Json(UpdateData, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpPost]
         public JsonResult UpdateFBAccount_NewCookie(string Id, string Memberid, string Cookie, int Status)
         {
@@ -2276,7 +2350,8 @@ namespace CloudControlBackend.Controllers
             {
                 FBMembers fbmember = fbmembersService.GetByID(Guid.Parse(Memberid));
                 fbmember.Cookie = Cookie;
-                fbmembersService.SpecificUpdate(fbmember, new string[] { "Cookie" });
+                fbmember.Isnew = 1;
+                fbmembersService.SpecificUpdate(fbmember, new string[] { "Cookie", "Isnew" });
                 fbmembersService.SaveChanges();
                 FBMembersLoginlog fbmemberloiglog = fbmembersloginlogService.Get().Where(a => a.FBMemberid == fbmember.FBMemberid).FirstOrDefault();
                 if (fbmemberloiglog != null)
@@ -2474,7 +2549,7 @@ namespace CloudControlBackend.Controllers
 
     public class get_old_member
     {
-        public Guid Memberid { get; set; }
+        public string Account { get; set; }
     }
 
     public class get_livelist

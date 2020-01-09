@@ -223,7 +223,10 @@ namespace CloudControlBackend.Controllers
                         fbmember.FB_Password = sheet.GetRow(i).GetCell(1).ToString();
                         fbmember.FB_Name = sheet.GetRow(i).GetCell(2).ToString();
                         fbmember.Facebooklink = sheet.GetRow(i).GetCell(3).ToString();
-                        fbmember.Cookie = sheet.GetRow(i).GetCell(4).ToString();
+                        if(sheet.GetRow(i).GetCell(4).ToString() != "null")
+                        {
+                            fbmember.Cookie = sheet.GetRow(i).GetCell(4).ToString();
+                        }                                         
                         switch (sheet.GetRow(i).GetCell(5).ToString())
                         {
                             case "1":
