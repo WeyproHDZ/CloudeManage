@@ -113,6 +113,8 @@ namespace CloudControlBackend.Controllers
         [CheckSession(IsAuth = true)]
         public ActionResult AddFBMembers(FBMembers fbmember)
         {
+            Guid FBAccountCostid = Guid.Parse("bfc0aa6b-91e9-4c1e-ba33-853ce7e92880"); // FB帳號成本ID
+            Product FBAccountCostProduct = productService.GetByID(FBAccountCostid); // FB帳號成本
             if (TryUpdateModel(fbmember, new string[] { "FB_Account", "FB_Password", "Facebooklink", "FB_Name", "Isenable", "Productid" }) && ModelState.IsValid)
             {
                 fbmember.FBMemberid = Guid.NewGuid();
@@ -120,6 +122,7 @@ namespace CloudControlBackend.Controllers
                 fbmember.Createdate = dt_tw();
                 fbmember.Updatedate = dt_tw();
                 fbmember.Lastdate = ((int)(dt_tw() - new DateTime(1970, 1, 1)).TotalSeconds) - 28800;      // 總秒數
+                fbmember.AccountCost = FBAccountCostProduct.Cost; // 帳號成本為當前的帳號成本
                 fbmember.Isenable = 1;
                 /*** 隨機抓取Useragent ***/
                 int useragentCount = useragentService.Get().Count();
@@ -217,12 +220,17 @@ namespace CloudControlBackend.Controllers
                     FBMembers fbmember = new FBMembers();
                     if (sheet.GetRow(i).GetCell(0).ToString() != "" && sheet.GetRow(i).GetCell(0).ToString() != null)
                     {
+                        Guid FBAccountCostid = Guid.Parse("bfc0aa6b-91e9-4c1e-ba33-853ce7e92880"); // FB帳號成本ID
+                        Product FBAccountCostProduct = productService.GetByID(FBAccountCostid); // FB帳號成本
 
                         var test = sheet.GetRow(i).GetCell(3).ToString();
                         fbmember.FB_Account = Regex.Replace(sheet.GetRow(i).GetCell(0).ToString(), @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                         fbmember.FB_Password = sheet.GetRow(i).GetCell(1).ToString();
                         fbmember.FB_Name = sheet.GetRow(i).GetCell(2).ToString();
-                        fbmember.Facebooklink = sheet.GetRow(i).GetCell(3).ToString();
+                        if(sheet.GetRow(i).GetCell(3).ToString() != "null")
+                        {
+                            fbmember.Facebooklink = sheet.GetRow(i).GetCell(3).ToString();
+                        }                       
                         if(sheet.GetRow(i).GetCell(4).ToString() != "null")
                         {
                             fbmember.Cookie = sheet.GetRow(i).GetCell(4).ToString();
@@ -277,6 +285,8 @@ namespace CloudControlBackend.Controllers
                         fbmember.Createdate = dt_tw();
                         fbmember.Updatedate = dt_tw();
                         fbmember.Lastdate = ((int)(dt_tw() - new DateTime(1970, 1, 1)).TotalSeconds) - 28800;
+                        fbmember.Isnew = 0; // 是否新Cookie【0:舊Cookie 1: 新Cookie】
+                        fbmember.AccountCost = FBAccountCostProduct.Cost; // 帳號成本為當前的帳號成本
                         /*** 隨機指派手機版Useragent ***/
                         int useragent_phone = useragentService.Get().Count();
                         Useragent[] useragent = useragentService.Get().ToArray();
@@ -346,7 +356,7 @@ namespace CloudControlBackend.Controllers
         [CheckSession(IsAuth = true)]
         public ActionResult AddIGMembers(IGMembers igmember)
         {
-            if (TryUpdateModel(igmember, new string[] { "IG_Account", "IG_Password", "Instagramlink", "IG_Name", "Isenable", "Productid" }) && ModelState.IsValid)
+            if (TryUpdateModel(igmember, new string[] { "IG_Account", "IG_Password", "Instagramlink", "IG_Name", "Isenable", "Productid", "Country" }) && ModelState.IsValid)
             {
                 igmember.IGMemberid = Guid.NewGuid();
                 igmember.IG_Account = Regex.Replace(igmember.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
@@ -401,7 +411,7 @@ namespace CloudControlBackend.Controllers
         {
             IGMembersLoginlog igmembersloginlog = new IGMembersLoginlog();
             IGMembers igmember = igmembersService.GetByID(IGMemberid);
-            if (TryUpdateModel(igmember, new string[] { "IG_Account", "IG_Password", "Instagramlink", "IG_Name", "Productid" }) && ModelState.IsValid)
+            if (TryUpdateModel(igmember, new string[] { "IG_Account", "IG_Password", "Instagramlink", "IG_Name", "Productid", "Country" }) && ModelState.IsValid)
             {
                 igmember.IG_Account = Regex.Replace(igmember.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                 igmembersService.Update(igmember);
@@ -487,11 +497,19 @@ namespace CloudControlBackend.Controllers
                         {
                             if (sheet.GetRow(i).GetCell(4).ToString() != "" && sheet.GetRow(i).GetCell(4).ToString() != null)
                             {
+                                igmember.Country = Convert.ToInt32(sheet.GetRow(i).GetCell(4).ToString());
+                            }
+                        }
+                        catch { }
+                        try
+                        {
+                            if (sheet.GetRow(i).GetCell(4).ToString() != "" && sheet.GetRow(i).GetCell(5).ToString() != null)
+                            {
                                 igmember.Cookie = sheet.GetRow(i).GetCell(4).ToString();
                             }
                         }
                         catch { }
-                        
+
                         igmember.IGMemberid = Guid.NewGuid();
                         igmember.Createdate = dt_tw();
                         igmember.Updatedate = dt_tw();

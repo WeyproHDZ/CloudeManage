@@ -73,7 +73,7 @@
                                             @*<a class="btn btn-warning btn-labeled" id="authmember" onclick="auth()" href="@Url.Action("AllAuthMembers", "MemberMs")" target="_blank"> <span class="btn-label"><i class="fa fa-repeat"></i></span>驗證會員(all) </a>
                                             <a class="btn btn-warning btn-labeled" id="authmember" onclick="auth()" href="@Url.Action("AuthMembers", "MemberMs")" target="_blank"> <span class="btn-label"><i class="fa fa-repeat"></i></span>驗證會員(v) & (?) </a>
                                             <a class="btn btn-warning btn-labeled" id="authmember" onclick="auth()" href="@Url.Action("ErrorAuthMembers", "MemberMs")" target="_blank"> <span class="btn-label"><i class="fa fa-repeat"></i></span>驗證會員(x) </a>*@
-                                            <a class="btn btn-success btn-labeled" href="@Url.Action("AddFBMembers", "Members")"> <span class="btn-label"><i class="fa fa-plus"></i></span>新增Facebook會員 </a>
+                                            <a class="btn btn-success btn-labeled" href="@Url.Action("AddFBMembers", "FBMembers")"> <span class="btn-label"><i class="fa fa-plus"></i></span>新增Facebook會員 </a>
                                             <a class="btn btn-primary btn-labeled" href="~/FileUpload/FB/example.xlsx"><span class="btn-label"><i class="fa fa-download"></i></span>範例表格</a>
                                             <button class="btn btn-primary btn-labeled" data-toggle="modal" data-target="#UploadModal"><span class="btn-label"><i class="fa fa-upload"></i></span>匯入資料</button>
                                             <button class="btn btn-info btn-labeled" type="button" id="checknumber" onclick="CheckFBMembersNumber()"><span class="btn-label"><i class="fa fa-book"></i></span>查看數量</button>
@@ -244,7 +244,7 @@
                 $.each($('tr').find('input#Check'), function () {
                     $(this).prop("checked", false);
                 });
-            }            
+            }
         }
 
         /*** 批量刪除 ***/
@@ -282,10 +282,18 @@
         /***** 確認FB數量 *****/
         function CheckFBMembersNumber() {
             $.ajax({
-                url: '@Url.Action("AjaxCheckFBMembersNumber", "Ajax")',
-                type: 'post',
-                dateType: 'json',
-                success: function (response) {
+                'url': '@Url.Action("AjaxCheckFBMembersNumber", "Ajax")',
+                'type': 'get',
+                'dataType': 'json',
+                'beforeSend': function () {
+                    swal({
+                        title: "請稍等!",
+                        type: 'warning',
+                        text: "正在計算數量!",
+                        showConfirmButton: false
+                    });
+                },
+                'success': function (response) {
                     var table = "";
                     $.each(response, function (key, value) {
                         table += "<tr>" +

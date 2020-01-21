@@ -18,8 +18,8 @@ namespace CloudControl.Model
         public IGMembers()
         {
             this.IGMembersLoginlog = new HashSet<IGMembersLoginlog>();
-            this.IGOrderlist = new HashSet<IGOrderlist>();
             this.IGOrder = new HashSet<IGOrder>();
+            this.IGOrderlist = new HashSet<IGOrderlist>();
         }
     
         public int Isenable { get; set; }
@@ -29,6 +29,7 @@ namespace CloudControl.Model
         public string IG_Account { get; set; }
         public string IG_Password { get; set; }
         public string IG_Name { get; set; }
+        public Nullable<int> Country { get; set; }
         public string Useragent { get; set; }
         public string Instagramlink { get; set; }
         public string Cookie { get; set; }
@@ -36,12 +37,12 @@ namespace CloudControl.Model
         public Nullable<System.DateTime> Updatedate { get; set; }
         public Nullable<System.DateTime> Createdate { get; set; }
     
+        public virtual Product Product { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IGMembersLoginlog> IGMembersLoginlog { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IGOrderlist> IGOrderlist { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IGOrder> IGOrder { get; set; }
-        public virtual Product Product { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IGOrderlist> IGOrderlist { get; set; }
     }
 }

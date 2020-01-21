@@ -54,7 +54,6 @@ namespace CloudControlBackend.Controllers
             /*** FB產品選單 ***/
             FBProductDropDownList();
             ViewBag.FBOrder = data.ToPagedList(pageNumber: p, pageSize: 20);
-            ViewBag.FBOrder_total = fborderService.Get().OrderByDescending(o => o.Createdate);
             return View();
         }
 
@@ -100,7 +99,6 @@ namespace CloudControlBackend.Controllers
             /*** FB產品選單 ***/
             FBProductDropDownList();
             ViewBag.FBOrder = data.ToPagedList(pageNumber: p, pageSize: 20);
-            ViewBag.FBOrder_total = fborderService.Get().OrderByDescending(o => o.Createdate);
             return View();
         }
 
@@ -117,13 +115,22 @@ namespace CloudControlBackend.Controllers
         [HttpPost]
         [CheckSession(IsAuth = true)]
         public ActionResult AddFBOrder(FBOrder fborder)
-        {
+        {            
             if (TryUpdateModel(fborder, new string[] { "Url", "Count", "Productid", "Categoryid", "Istest" }) && ModelState.IsValid)
             {
                 fborder.FBOrderid = Guid.NewGuid();
                 fborder.Createdate = dt_tw();
                 fborder.Updatedate = dt_tw();
-                fborder.Remains = fborder.Count;
+                fborder.Remains = fborder.Count;    // 剩餘數量
+
+                fborder.ProductCost = 1;
+                Product product = productService.GetByID(fborder.Productid);
+                if(fborder.Istest == false)
+                {                    
+                    fborder.Price = Convert.ToDouble(product.Price * fborder.Count);    // 售價
+                }
+                fborder.ProductCost = Convert.ToDouble(product.Cost); // 產品成本是當前的產品成本
+                fborder.Cost = Convert.ToDouble(fborder.Count * product.Cost); // 訂單成本先預估是數量x當前產品成本               
                 fborder.FBOrdernumber = "FBOrder" + dt_tw().ToString("yyyyMMddHHmmssfff");
                 fborder.IsResourceGroup = true;
                 fborderService.Create(fborder);
@@ -187,10 +194,10 @@ namespace CloudControlBackend.Controllers
         [CheckSession(IsAuth = true)]
         public ActionResult FBOrderlist(Guid FBOrderid, int p = 1)
         {
-            var data = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).OrderByDescending(o => o.FBMembers.FB_Name);
+            var data = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).Where(a => a.FBMembers.Isenable == 1).OrderByDescending(o => o.FBMembers.FB_Name);
             ViewBag.pageNumber = p;
-            ViewBag.LiveNumber = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status != 2).Count();
-            ViewBag.DeathNumber = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status == 2).Count();
+            ViewBag.LiveNumber = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).Where(a => a.FBMembers.Isenable == 1).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status != 2).Count();
+            ViewBag.DeathNumber = fborderlistService.Get().Where(a => a.FBOrderid == FBOrderid).Where(a => a.FBMembers.Isenable == 1).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status == 2).Count();
             ViewBag.FBOrderid = FBOrderid;
             ViewBag.FBOrderlist = data.ToPagedList(pageNumber: p, pageSize: 20);
             return View();
@@ -198,7 +205,7 @@ namespace CloudControlBackend.Controllers
 
         [HttpGet]
         [CheckSession(IsAuth = true)]
-        public ActionResult FBOrderrework(Guid FBOrderid, int p)
+        public ActionResult FBOrderreplenish(Guid FBOrderid, int p)
         {
             FBOrder fborder = fborderService.GetByID(FBOrderid);
             fborder.FBOrderStatus = 0;  // 將訂單改為等待中
@@ -231,16 +238,6 @@ namespace CloudControlBackend.Controllers
             return RedirectToAction("FBOrder", new { p = p });
         }
 
-        [HttpGet]
-        [CheckSession(IsAuth = true)]
-        public ActionResult FBOrdersupplement(Guid FBOrderid, int p)
-        {
-            FBOrder fborder = fborderService.GetByID(FBOrderid);
-            fborder.FBOrderStatus = 0;  // 將訂單改為等待中
-            fborderService.SpecificUpdate(fborder, new string[] { "FBOrderStatus" });
-            fborderService.SaveChanges();
-            return RedirectToAction("FBOrder", new { p = p });
-        }
         /****** IG訂單 查詢/新增/刪除/修改/完成名單/重做/收回 *****/
         [CheckSession(IsAuth = true)]
         public ActionResult IGOrder(int p = 1)

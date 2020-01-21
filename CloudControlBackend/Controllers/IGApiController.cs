@@ -477,7 +477,8 @@ namespace CloudControlBackend.Controllers
                                         Password = Member.IG_Password,
                                         Useragent_phone = Member.Useragent,
                                         Cookie = Cookie,
-                                        Message = message[rand].MessageName
+                                        Message = message[rand].MessageName,
+                                        Country = Convert.ToInt16(Member.Country)
                                     }
                                 );
                                 used = true;
@@ -492,6 +493,7 @@ namespace CloudControlBackend.Controllers
                                         Password = Member.IG_Password,
                                         Useragent_phone = Member.Useragent,
                                         Cookie = Cookie,
+                                        Country = Convert.ToInt16(Member.Country)
                                     }
                                 );
                                 used = true;
@@ -670,7 +672,8 @@ namespace CloudControlBackend.Controllers
                             Account = igordertemp.IGAccount,
                             Password = igordertemp.IGMembers.IG_Password,
                             Useragent_phone = igordertemp.IGMembers.Useragent,
-                            Cookie = Cookie
+                            Cookie = Cookie,
+                            Country = Convert.ToInt16(igordertemp.IGMembers.Country)
                         }
                     );
 
@@ -791,6 +794,7 @@ namespace CloudControlBackend.Controllers
             public string Message { get; set; }
             public string Useragent_phone { get; set; }
             public string Cookie { get; set; }
+            public int Country { get; set; }
         }
     }
 }

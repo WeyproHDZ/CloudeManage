@@ -26,24 +26,32 @@ namespace CloudControl.Model
         public System.Guid FBOrderid { get; set; }
         public string FBOrdernumber { get; set; }
         public Nullable<System.Guid> Productid { get; set; }
+        public Nullable<double> ProductCost { get; set; }
         public Nullable<System.Guid> Categoryid { get; set; }
         public Nullable<System.Guid> FBMemberid { get; set; }
         public string Url { get; set; }
         public string Service { get; set; }
         public Nullable<int> Count { get; set; }
         public Nullable<int> Remains { get; set; }
+        public double Cost { get; set; }
+        public double CostRun { get; set; }
+        public double CostAccount { get; set; }
+        public double Price { get; set; }
+        public int FinishCount { get; set; }
+        public int DeathCount { get; set; }
+        public int ReplenishCount { get; set; }
         public int FBOrderStatus { get; set; }
         public Nullable<System.DateTime> Duedate { get; set; }
         public Nullable<System.DateTime> Updatedate { get; set; }
         public Nullable<System.DateTime> Createdate { get; set; }
     
         public virtual CategoryMessage CategoryMessage { get; set; }
+        public virtual FBMembers FBMembers { get; set; }
+        public virtual Product Product { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBVMLog> FBVMLog { get; set; }
+        public virtual Product Product1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBOrderlist> FBOrderlist { get; set; }
-        public virtual Product Product { get; set; }
-        public virtual Product Product1 { get; set; }
-        public virtual FBMembers FBMembers { get; set; }
     }
 }

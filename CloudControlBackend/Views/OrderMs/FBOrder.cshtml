@@ -1,10 +1,7 @@
 ﻿@{
     var data = ViewBag.FBOrder as IPagedList<FBOrder>;
-    var total_data = ViewBag.FBOrder_total;
     int x = 0;
     string Status = "";
-    double Cost = 0.0;       //總成本
-    double Price = 0.0;      //總售價
     @*if (TempData.ContainsKey("message"))
         {
             <script>alert('@TempData["message"]');</script>
@@ -49,21 +46,10 @@
                                             <button class="btn btn-info btn-labeled" type="submit"><span class="btn-label"><i class="fa fa-search"></i></span>查詢</button>
                                             <button class="btn btn-danger btn-labeled" type="button" id="deletechecked" onclick="DeleteFBOrderChecked()"><span class="btn-label"><i class="fa fa-trash-o"></i></span>刪除</button>                                           
                                             <button class="btn btn-primary btn-labeled" type="button" id="calccheckedcost" onclick="CalcCheckedCost()"><span class="btn-label"><i class="fa fa-money"></i></span>計算</button>
+                                            <button class="btn btn-primary btn-labeled" type="button" id="updatecheckedcost" onclick="UpdateCheckedCost()"><span class="btn-label"><i class="fa fa-refresh"></i></span>更新</button>
                                         </div>
                                         <div class="col-sm-2">
                                             <a class="btn btn-success btn-labeled" href="@Url.Action("AddFBOrder", "OrderMs")"> <span class="btn-label"><i class="fa fa-plus"></i></span>新增Facebook訂單 </a>
-                                            @foreach (FBOrder entity in total_data)
-                                            {
-                                                if (entity.Istest == false)
-                                                {
-                                                    Cost += Convert.ToDouble(entity.Product.Cost * entity.Count);
-                                                    Price += Convert.ToDouble(entity.Product.Price * entity.Count);
-                                                }
-                                            }
-                                            <br />
-                                            總成本: @Cost<br />
-                                            總售價: @Price<br />
-                                            總利潤: @(Price - Cost)
                                         </div>
                                     </div>
                                 </div>
@@ -75,15 +61,15 @@
                                         <tr>
                                             <th width="3%" class="text-center"><input type="checkbox" name="Check" id="CheckAll" onclick="Checkall()"></th>
                                             <th class="text-center">訂單編號</th>
-                                            <th class="text-center">類別名稱</th>
                                             <th class="text-center">產品名稱</th>
                                             <th class="text-center">下單時間</th>
-                                            <th width="5%" class="text-center">數量</th>
+                                            <th width="7%" class="text-center">訂單數量</th>
+                                            <th width="7%" class="text-center">成功數量</th>
+                                            <th width="7%" class="text-center">死亡數量</th>
                                             <th width="7%" class="text-center">剩餘數量</th>
-                                            <th width="7%" class="text-center">完成數量</th>
+                                            <th width="7%" class="text-center">補充數量</th>
                                             <th width="5%" class="text-center">成本</th>
-                                            <th width="5%" class="text-center">售價</th>
-                                            <th width="5%" class="text-center">死亡人數</th>
+                                            <th width="5%" class="text-center">售價</th>                                         
                                             <th width="5%" class="text-center">網址</th>
                                             <th width="10%" class="text-center">訂單狀態</th>
                                             <th width="7%" class="text-center">完成名單</th>
@@ -99,23 +85,15 @@
                                             <tr>
                                                 <td><input type="checkbox" name="@entity.FBOrderid" value="1" id="Check" data-fbordernumber="@entity.FBOrdernumber" onclick="Statistics_order('@entity.FBOrdernumber')"></td>
                                                 <td class="text-center">@entity.FBOrdernumber</td>
-                                                <td class="text-center">Facebook</td>
                                                 <td class="text-center">@entity.Product.Productname</td>
                                                 <td class="text-center">@entity.Createdate</td>
                                                 <td class="text-center">@entity.Count</td>
+                                                <td class="text-center">@entity.FinishCount</td>
+                                                <td class="text-center">@entity.DeathCount</td>
                                                 <td class="text-center">@entity.Remains</td>
-                                                <td class="text-center">@entity.FBOrderlist.Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status != 2).Count()</td>
-                                                @if (entity.Istest == true)
-                                                {
-                                                    <td class="text-center">@(entity.Product.Cost * entity.FBOrderlist.Count())</td>
-                                                    <td class="text-center">0</td>
-                                                }
-                                                else
-                                                {
-                                                    <td class="text-center">@(entity.Product.Cost * entity.FBOrderlist.Count())</td>
-                                                    <td class="text-center">@(entity.Product.Price * entity.Count)</td>
-                                                }
-                                                <td class="text-center">@entity.FBOrderlist.Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status == 2).Count()</td>
+                                                <td class="text-center">@entity.ReplenishCount</td>
+                                                <td class="text-center">@(Math.Round(entity.Cost, 2))</td>                                                
+                                                <td class="text-center">@(Math.Round(entity.Price, 2))</td>                                               
                                                 <td class="text-center"><a href="@entity.Url" target="_blank">網址</a></td>
                                                 @switch (entity.FBOrderStatus)
                                                 {
@@ -145,7 +123,14 @@
                                                         break;
                                                 }
                                                 <td class="text-center"><a href="@Url.Action("FBOrderlist", "OrderMs", new { FBOrderid = entity.FBOrderid })" class="btn btn-info btn-xs"><i class="fa fa-paper-plane"></i></a></td>
-                                                <td class="text-center"><a href="@Url.Action("FBOrderrework", "OrderMs", new { FBOrderid = entity.FBOrderid, p = ViewBag.pageNumber })" class="btn btn-info btn-xs"><i class="fa fa-rotate-left"></i></a></td>
+                                                @if (entity.FBOrderStatus == 2)
+                                                {
+                                                    <td class="text-center"><a href="@Url.Action("FBOrderreplenish", "OrderMs", new { FBOrderid = entity.FBOrderid, p = ViewBag.pageNumber })" class="btn btn-info btn-xs"><i class="fa fa-plus"></i></a></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center"><a href="@Url.Action("FBOrderreplenish", "OrderMs", new { FBOrderid = entity.FBOrderid, p = ViewBag.pageNumber })" class="btn btn-info btn-xs" disabled><i class="fa fa-plus"></i></a></td>
+                                                }                                                
                                                 @if (entity.FBOrderStatus == 6 || entity.FBOrderStatus == 0)
                                                 {
                                                     <td class="text-center"><button type="button" onclick="location.href='@Url.Action("FBOrderregain", "OrderMs", new { FBOrderid = entity.FBOrderid, p = ViewBag.pageNumber, Productid = entity.Productid })'" class="btn btn-info btn-xs" disabled><i class="fa fa-play"></i></button></td>
@@ -285,6 +270,41 @@
                     swal({
                         title: "計算結果",
                         html: "成本 : "+responseArray[0]+"<br>"+"售價 : "+responseArray[1]+"<br>"+"利潤 : "+responseArray[2]+"<br>"+"共"+responseArray[3]+"筆"
+                    }).then(function (e) {
+                        location.reload();
+                    });
+                }
+            });
+        }
+
+        /**** 更新訂單 成本/完成人數/死亡人數/補充人數 ***/
+        function UpdateCheckedCost() {
+            var FBOrderid = [];
+            $.each($('tr').find('input#Check'), function () {
+                if ($(this).prop('checked') == true) {
+                    FBOrderid.push($(this).attr("name"));  //塞到陣列中
+                }
+            });
+            $.ajax({
+                'url': '@Url.Action("AjaxUpdateCheckedCost", "Ajax")',
+                'type': 'post',
+                'data': { FBOrderid: FBOrderid },
+                'dataType': 'json',
+                'timeout': 30000,
+                'beforeSend': function () {
+                    swal({
+                        title: "請稍等!",
+                        type: 'warning',
+                        text: "正在更新訂單!",
+                        showConfirmButton: false
+                    });
+                },
+                'success': function (response) {
+                    swal({
+                        title: '已更新',
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: '確定！',
                     }).then(function (e) {
                         location.reload();
                     });

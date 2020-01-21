@@ -37,11 +37,11 @@ namespace CloudControl.Model
         public Nullable<System.DateTime> Createdate { get; set; }
     
         public virtual CategoryMessage CategoryMessage { get; set; }
-        public virtual IGMembers IGMembers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IGOrderlist> IGOrderlist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IGVMLog> IGVMLog { get; set; }
         public virtual Product Product { get; set; }
+        public virtual IGMembers IGMembers { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace CloudControlBackend.Controllers
         private IGMembersService igmembersService;
         private YTMembersService ytmembersService;
         private FBOrderService fborderService;
+        private FBOrderlistService fborderlistService;
         private IGOrderService igorderService;
         private YTOrderService ytorderService;
         public AjaxController()
@@ -28,6 +29,7 @@ namespace CloudControlBackend.Controllers
             igmembersService = new IGMembersService();
             ytmembersService = new YTMembersService();
             fborderService = new FBOrderService();
+            fborderlistService = new FBOrderlistService();
             igorderService = new IGOrderService();
             ytorderService = new YTOrderService();
         }
@@ -149,6 +151,27 @@ namespace CloudControlBackend.Controllers
             return this.Json(Cost+";"+Price+";"+(Price-Cost)+";"+ Count);
 
         }
+        /**** 更新訂單 成本/完成人數/死亡人數/補充人數 ***/
+        [HttpPost]
+        public JsonResult AjaxUpdateCheckedCost(Guid[] FBOrderid)
+        {
+            foreach(Guid Orderid in FBOrderid)
+            {
+                FBOrder fborder = fborderService.GetByID(Orderid);
+                IEnumerable<FBOrderlist> fborderlist = fborderlistService.Get().Where(a => a.FBOrderid == Orderid);
+                fborder.Cost = (fborder.CostRun + fborder.CostAccount) + ((fborder.CostRun + fborder.CostAccount) * (20d/100d));  // 訂單成本為實際成本(運行+帳號) + 20%(預估死亡率)
+                fborder.FinishCount = fborderlist.Where(c => c.FBMembers.Isenable == 1).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status != 2).Count();
+                fborder.DeathCount = fborderlist.Where(c => c.FBMembers.Isenable == 1).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status == 2).Count();
+                /*** 假設訂單完成 ***/
+                if(fborder.FBOrderStatus == 2)
+                {
+                    fborder.ReplenishCount += Convert.ToInt32(fborder.Count - fborder.FinishCount); // 補充人數為訂單數量 - 成功數量
+                }
+                fborderService.SpecificUpdate(fborder, new string[] { "Cost", "FinishCount", "DeathCount", "ReplenishCount" });                
+            }
+            fborderService.SaveChanges();
+            return this.Json("Success");
+        }
         /*** 取得FB產品 ****/
         [HttpPost]
         public JsonResult FBProduct(Guid Categoryid)
@@ -168,16 +191,17 @@ namespace CloudControlBackend.Controllers
         }
 
         /**** 確認FB數量 ***/
-        [HttpPost]
+        [HttpGet]
         public JsonResult AjaxCheckFBMembersNumber()
         {
             Guid CategoryId = Guid.Parse("9f268158-09b1-4176-9088-a4a4af63d389");
             IEnumerable<Product> ProductList = productService.Get().Where(a => a.Categoryid == CategoryId).OrderBy(o => o.Orders);
+            
             List<ProductNumber> List = new List<ProductNumber>();
             foreach(Product Product in ProductList)            
             {
-                int Count = fbmembersService.GetNoDel().Where(i => i.Isenable == 1).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
-                int PrepCount = fbmembersService.GetNoDel().Where(i => i.Isenable == 2).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
+                int Count = fbmembersService.Get().Where(n => n.Isnew == 1).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();                
+                int PrepCount = fbmembersService.GetNoDel().Where(n => n.Isnew == 1).Where(i => i.Isenable == 2).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
                 int Death = fbmembersService.Get().Where(a => a.FBMembersLoginlog.FirstOrDefault().Status == 2).Where(p => p.Productid == Product.Productid).Count();
                 List.Add(
                     new ProductNumber()
@@ -188,8 +212,9 @@ namespace CloudControlBackend.Controllers
                         Productdeathcount = Death
                     }
                 );
+                
             }
-            return this.Json(List);
+            return this.Json(List, JsonRequestBehavior.AllowGet);
         }
 
         /*** 批量刪除FB會員 ****/

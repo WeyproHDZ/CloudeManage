@@ -24,6 +24,8 @@ namespace CloudControl.Model
     
         public Nullable<int> Isenable { get; set; }
         public int Isdocker { get; set; }
+        public int Isnew { get; set; }
+        public Nullable<double> AccountCost { get; set; }
         public System.Guid FBMemberid { get; set; }
         public Nullable<System.Guid> Productid { get; set; }
         public string FB_Account { get; set; }
@@ -35,7 +37,6 @@ namespace CloudControl.Model
         public Nullable<long> Lastdate { get; set; }
         public Nullable<System.DateTime> Updatedate { get; set; }
         public Nullable<System.DateTime> Createdate { get; set; }
-        public int Isnew { get; set; }
     
         public virtual Product Product { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

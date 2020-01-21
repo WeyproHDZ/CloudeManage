@@ -22,7 +22,7 @@ namespace CloudControl.Model
         public Nullable<System.DateTime> Updatedate { get; set; }
         public Nullable<System.DateTime> Createdate { get; set; }
     
-        public virtual IGMembers IGMembers { get; set; }
         public virtual IGOrder IGOrder { get; set; }
+        public virtual IGMembers IGMembers { get; set; }
     }
 }
