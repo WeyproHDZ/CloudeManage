@@ -512,12 +512,6 @@ namespace CloudControlBackend.Controllers
                     else
                     {
 
-                        //Memberid = Member.IGMemberid,
-                        //Account = Member.IG_Account,
-                        //Password = Member.IG_Password,
-                        //Useragent_phone = Member.Useragent,
-                        //Cookie = Cookie,
-                        //Duedate = (Now + 3600),
                         foreach (get_member entity in AccountList.Take(number))
                         {
                             /*** 將此會員更新下次互惠時間 ****/
@@ -531,7 +525,8 @@ namespace CloudControlBackend.Controllers
                                 { "Account", entity.Account },
                                 { "Password", entity.Password },
                                 { "Useragent", entity.Useragent_phone },
-                                { "Cookie", entity.Cookie }
+                                { "Cookie", entity.Cookie },
+                                { "Country", entity.Country.ToString() }
                             };
                         }
                         igmembersService.SaveChanges();

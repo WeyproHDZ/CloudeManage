@@ -1446,9 +1446,9 @@ namespace CloudControlBackend.Controllers
             List<OrderStatus> OrderStatus = new List<Controllers.OrderStatus>();
             if(Id == "CloudControl_order")
             {
-                Guid Love_id = Guid.Parse("6c5425d0-5362-4fa9-8c6e-dfb929877b93");
+                Guid Like_id = Guid.Parse("0c020482-d76a-4213-b021-f8db0fe96489");
                 /**** 運行中訂單 ***/
-                IEnumerable<FBOrder> running_fborders = fborderService.Get().Where(a => a.FBOrderStatus == 1).Where(x => x.Productid != Love_id).OrderBy(o => o.Createdate).ToList();
+                IEnumerable<FBOrder> running_fborders = fborderService.Get().Where(a => a.FBOrderStatus == 1).Where(x => x.Productid == Like_id).OrderBy(o => o.Createdate).ToList();
                 if(running_fborders != null)
                 {
                     foreach (FBOrder running_fborder in running_fborders)
@@ -1486,7 +1486,7 @@ namespace CloudControlBackend.Controllers
                     }
                 }                
                 /**** 等待中訂單 ***/
-                IEnumerable<FBOrder> waiting_fborders = fborderService.Get().Where(a => a.FBOrderStatus == 0).Where(x => x.Productid != Love_id).OrderBy(o => o.Createdate).ToList();
+                IEnumerable<FBOrder> waiting_fborders = fborderService.Get().Where(a => a.FBOrderStatus == 0).Where(x => x.Productid == Like_id).OrderBy(o => o.Createdate).ToList();
                 if(waiting_fborders != null)
                 {
                     foreach (FBOrder waiting_fborder in waiting_fborders)

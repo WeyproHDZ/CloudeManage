@@ -505,7 +505,7 @@ namespace CloudControlBackend.Controllers
                         {
                             if (sheet.GetRow(i).GetCell(4).ToString() != "" && sheet.GetRow(i).GetCell(5).ToString() != null)
                             {
-                                igmember.Cookie = sheet.GetRow(i).GetCell(4).ToString();
+                                igmember.Cookie = sheet.GetRow(i).GetCell(5).ToString();
                             }
                         }
                         catch { }
