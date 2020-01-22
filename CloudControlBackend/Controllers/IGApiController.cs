@@ -399,7 +399,7 @@ namespace CloudControlBackend.Controllers
             {
                 IGOrder igorder = igorderService.Get().Where(a => a.IGOrdernumber == IGOrdernumber).FirstOrDefault();   // 撈該訂單
                 IEnumerable<IGOrderlist> igorderlist = igorderlistService.Get().Where(a => a.IGOrder.IGOrdernumber == IGOrdernumber);   // 撈該訂單的完成列表
-                IEnumerable<IGOrder> old_igorder = igorderService.Get().Where(c => c.Productid == igorder.Productid).Where(a => a.IGOrdernumber != IGOrdernumber).Where(x => x.Url == igorder.Url);  // 撈所有訂單裡網址為此訂單及產品為此訂單的資料
+                IEnumerable<IGOrder> old_igorders = igorderService.Get().Where(c => c.Productid == igorder.Productid).Where(a => a.IGOrdernumber != IGOrdernumber).Where(x => x.Url == igorder.Url);  // 撈所有訂單裡網址為此訂單及產品為此訂單的資料
                 Product product = productService.GetByID(igorder.Productid);    // 撈此訂單所需的產品
                 List<get_old_member> MemberList = new List<get_old_member>();
                 /**** 先排除這張訂單的完成訂單裡的人 ****/
@@ -417,14 +417,14 @@ namespace CloudControlBackend.Controllers
                 }
 
                 /*** 將同網址的訂單的完成訂單裡的人排除掉 ****/
-                if (old_igorder != null)
+                if (old_igorders != null)
                 {
-                    foreach (IGOrder thisold_igorder in old_igorder)
+                    foreach (IGOrder old_igorder in old_igorders)
                     {
-                        IEnumerable<IGOrderlist> old_igorderlist = igorderlistService.Get().Where(a => a.IGOrderid == thisold_igorder.IGOrderid);
+                        IEnumerable<IGOrderlist> old_igorderlist = igorderlistService.Get().Where(a => a.IGOrderid == old_igorder.IGOrderid);
                         foreach (IGOrderlist thisold_igorderlist in old_igorderlist)
                         {
-                            string Account = Regex.Replace(thisold_igorder.IGMembers.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                            string Account = Regex.Replace(old_igorder.IGMembers.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                             MemberList.Add(
                             new get_old_member
                             {

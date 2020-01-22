@@ -2318,15 +2318,19 @@ namespace CloudControlBackend.Controllers
             if(Id == "CloudControl_order")
             {               
                 List<GetAccount> AccountList = new List<GetAccount>();
-                FBMembers fbmembers = fbmembersService.GetNoDel().Where(i => i.Isenable == 2).Where(a => a.Isnew == 0).Where(c => c.Productid != LiveId).Where(x => x.FBMembersLoginlog.FirstOrDefault().Status != 2).FirstOrDefault();
+                IEnumerable<FBMembers> fbmembers = fbmembersService.GetNoDel().Where(i => i.Isenable == 2).Where(a => a.Isnew == 0).Where(c => c.Productid != LiveId).Where(x => x.FBMembersLoginlog.FirstOrDefault().Status != 2).Take(5);
                 if(fbmembers != null)
                 {
-                    AccountList.Add(
+                    foreach(FBMembers fbmember in fbmembers)
+                    {
+                        AccountList.Add(
                             new GetAccount()
                             {
-                                Memberid = fbmembers.FBMemberid.ToString()
+                                Memberid = fbmember.FBMemberid.ToString()
                             }
-                    );
+                        );
+                    }
+                    
                                                    
                     AccountStatus.Add(
                         new Controllers.AccountStatus()

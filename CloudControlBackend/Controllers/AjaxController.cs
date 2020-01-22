@@ -159,7 +159,7 @@ namespace CloudControlBackend.Controllers
             {
                 FBOrder fborder = fborderService.GetByID(Orderid);
                 IEnumerable<FBOrderlist> fborderlist = fborderlistService.Get().Where(a => a.FBOrderid == Orderid);
-                fborder.Cost = (fborder.CostRun + fborder.CostAccount) + ((fborder.CostRun + fborder.CostAccount) * (20d/100d));  // 訂單成本為實際成本(運行+帳號) + 20%(預估死亡率)
+                fborder.Cost = (fborder.CostRun + fborder.CostAccount) - ((fborder.CostRun + fborder.CostAccount) * (20d/100d));  // 訂單成本為實際成本(運行+帳號) - 20%(預估死亡率)
                 fborder.FinishCount = fborderlist.Where(c => c.FBMembers.Isenable == 1).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status != 2).Count();
                 fborder.DeathCount = fborderlist.Where(c => c.FBMembers.Isenable == 1).Where(a => a.FBMembers.FBMembersLoginlog.FirstOrDefault().Status == 2).Count();
                 /*** 假設訂單完成 ***/
