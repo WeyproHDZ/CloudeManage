@@ -399,14 +399,14 @@ namespace CloudControlBackend.Controllers
             {
                 IGOrder igorder = igorderService.Get().Where(a => a.IGOrdernumber == IGOrdernumber).FirstOrDefault();   // 撈該訂單
                 IEnumerable<IGOrderlist> igorderlist = igorderlistService.Get().Where(a => a.IGOrder.IGOrdernumber == IGOrdernumber);   // 撈該訂單的完成列表
-                IEnumerable<IGOrder> old_igorders = igorderService.Get().Where(c => c.Productid == igorder.Productid).Where(a => a.IGOrdernumber != IGOrdernumber).Where(x => x.Url == igorder.Url);  // 撈所有訂單裡網址為此訂單及產品為此訂單的資料
+                IEnumerable<IGOrder> old_igorders = igorderService.Get().Where(c => c.Productid == igorder.Productid).Where(a => a.IGOrdernumber != IGOrdernumber).Where(x => x.Url == igorder.Url);  // 撈所有訂單裡網址為此訂單及產品為此訂單的資料                
                 Product product = productService.GetByID(igorder.Productid);    // 撈此訂單所需的產品
                 List<get_old_member> MemberList = new List<get_old_member>();
                 /**** 先排除這張訂單的完成訂單裡的人 ****/
                 if (igorderlist != null)
                 {
                     foreach (IGOrderlist list in igorderlist)
-                    {
+                    {                        
                         string Account = Regex.Replace(list.IGMembers.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                         MemberList.Add(
                         new get_old_member
@@ -416,15 +416,16 @@ namespace CloudControlBackend.Controllers
                     }
                 }
 
+                
                 /*** 將同網址的訂單的完成訂單裡的人排除掉 ****/
                 if (old_igorders != null)
                 {
                     foreach (IGOrder old_igorder in old_igorders)
                     {
-                        IEnumerable<IGOrderlist> old_igorderlist = igorderlistService.Get().Where(a => a.IGOrderid == old_igorder.IGOrderid);
-                        foreach (IGOrderlist thisold_igorderlist in old_igorderlist)
+                        IEnumerable<IGOrderlist> old_igorderlists = igorderlistService.Get().Where(a => a.IGOrderid == old_igorder.IGOrderid);
+                        foreach (IGOrderlist old_igorderlist in old_igorderlists)
                         {
-                            string Account = Regex.Replace(old_igorder.IGMembers.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                            string Account = Regex.Replace(old_igorderlist.IGMembers.IG_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                             MemberList.Add(
                             new get_old_member
                             {
@@ -435,7 +436,8 @@ namespace CloudControlBackend.Controllers
                 }
 
                 List<get_member> AccountList = new List<get_member>();
-                IEnumerable<IGMembers> IGMembers = igmembersService.Get().Where(a => a.Lastdate <= Now).Where(x => x.IGMembersLoginlog.OrderByDescending(c => c.Createdate).FirstOrDefault().Status != 2).OrderBy(o => o.Lastdate);    // 撈可用時間小於現在以及驗證狀態不是需驗證的會員
+                IEnumerable<IGMembers> IGMembers = igmembersService.Get().Where(a => a.Lastdate <= Now).Where(a => a.Country != null).Where(x => x.IGMembersLoginlog.OrderByDescending(c => c.Createdate).FirstOrDefault().Status != 2).OrderBy(o => o.Lastdate);    // 撈可用時間小於現在以及驗證狀態不是需驗證的會員
+                
                 if (IGMembers != null)
                 {
                     foreach (IGMembers Member in IGMembers)
@@ -790,6 +792,10 @@ namespace CloudControlBackend.Controllers
             public string Useragent_phone { get; set; }
             public string Cookie { get; set; }
             public int Country { get; set; }
+        }
+        public class get_old_member
+        {
+            public string Account { get; set; }
         }
     }
 }
