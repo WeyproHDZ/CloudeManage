@@ -20,10 +20,10 @@ namespace CloudControl.Model
             this.IGOrder = new HashSet<IGOrder>();
             this.YTMembers = new HashSet<YTMembers>();
             this.YTOrder = new HashSet<YTOrder>();
-            this.FBMembers = new HashSet<FBMembers>();
             this.FBOrder = new HashSet<FBOrder>();
             this.FBOrder1 = new HashSet<FBOrder>();
             this.IGMembers = new HashSet<IGMembers>();
+            this.FBMembers = new HashSet<FBMembers>();
         }
     
         public Nullable<System.Guid> Categoryid { get; set; }
@@ -44,12 +44,12 @@ namespace CloudControl.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<YTOrder> YTOrder { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FBMembers> FBMembers { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBOrder> FBOrder { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FBOrder> FBOrder1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IGMembers> IGMembers { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<FBMembers> FBMembers { get; set; }
     }
 }

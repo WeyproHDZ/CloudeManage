@@ -413,14 +413,15 @@ namespace CloudControlBackend.Controllers
         }
         #endregion
         #region --要帳號--
+        [HttpGet]
         public JsonResult GetYTMember(string Id, int number, string YTOrdernumber)
         {
             if (Id == "CloudControl_order")
             {
                 YTOrder ytorder = ytorderService.Get().Where(a => a.YTOrdernumber == YTOrdernumber).FirstOrDefault();   // 撈該訂單
                 IEnumerable<YTOrderlist> ytorderlist = ytorderlistService.Get().Where(a => a.YTOrder.YTOrdernumber == YTOrdernumber);   // 撈該訂單的完成列表
-                IEnumerable<YTOrder> old_ytorder = ytorderService.Get().Where(c => c.Productid == ytorder.Productid).Where(a => a.YTOrdernumber != YTOrdernumber).Where(x => x.Url == ytorder.Url);  // 撈所有訂單裡網址為此訂單及產品為此訂單的資料
-                Product product = productService.GetByID(ytorder.Productid);    // 撈此訂單所需的產品
+                IEnumerable<YTOrder> old_ytorders = ytorderService.Get().Where(c => c.Productid == ytorder.Productid).Where(a => a.YTOrdernumber != YTOrdernumber).Where(x => x.Url == ytorder.Url);  // 撈所有訂單裡網址為此訂單及產品為此訂單的資料
+                Product product = productService.GetByID(ytorder.Productid);    // 撈此訂單所需的產品                
                 List<get_old_member> MemberList = new List<get_old_member>();
                 /**** 先排除這張訂單的完成訂單裡的人 ****/
                 if (ytorderlist != null)
@@ -437,14 +438,14 @@ namespace CloudControlBackend.Controllers
                 }
 
                 /*** 將同網址的訂單的完成訂單裡的人排除掉 ****/
-                if (old_ytorder != null)
+                if (old_ytorders != null)
                 {
-                    foreach (YTOrder thisold_ytorder in old_ytorder)
+                    foreach (YTOrder old_ytorder in old_ytorders)
                     {
-                        IEnumerable<YTOrderlist> old_ytorderlist = ytorderlistService.Get().Where(a => a.YTOrderid == thisold_ytorder.YTOrderid);
-                        foreach (YTOrderlist thisold_ytorderlist in old_ytorderlist)
+                        IEnumerable<YTOrderlist> old_ytorderlists = ytorderlistService.Get().Where(a => a.YTOrderid == old_ytorder.YTOrderid);
+                        foreach (YTOrderlist old_ytorderlist in old_ytorderlists)
                         {
-                            string Account = Regex.Replace(thisold_ytorder.YTMembers.YT_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                            string Account = Regex.Replace(old_ytorderlist.YTMembers.YT_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
                             MemberList.Add(
                             new get_old_member
                             {
@@ -453,9 +454,9 @@ namespace CloudControlBackend.Controllers
                         }
                     }
                 }
-
                 List<get_member> AccountList = new List<get_member>();
                 IEnumerable<YTMembers> YTMembers = ytmembersService.Get().Where(a => a.Lastdate <= Now).Where(x => x.YTMembersLoginlog.OrderByDescending(c => c.Createdate).FirstOrDefault().Status != 2).OrderBy(o => o.Lastdate);    // 撈可用時間小於現在以及驗證狀態不是需驗證的會員
+                
                 if (YTMembers != null)
                 {
                     foreach (YTMembers Member in YTMembers)
@@ -792,6 +793,11 @@ namespace CloudControlBackend.Controllers
             public string Message { get; set; }
             public string Useragent_phone { get; set; }
             public string Cookie { get; set; }
+        }
+
+        public class get_old_member
+        {
+            public string Account { get; set; }
         }
     }
 

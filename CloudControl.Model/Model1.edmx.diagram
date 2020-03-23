@@ -45,15 +45,10 @@
         <AssociationConnector Association="CloudControlModel.FK_IGOrder_Product" />
         <AssociationConnector Association="CloudControlModel.FK_YTMembers_Product1" />
         <AssociationConnector Association="CloudControlModel.FK_YTOrder_Product" />
-        <EntityTypeShape EntityType="CloudControlModel.FBMembers" Width="1.5" PointX="4.5" PointY="4.75" />
         <EntityTypeShape EntityType="CloudControlModel.FBMembersLoginlog" Width="1.5" PointX="4.5" PointY="2.625" />
         <EntityTypeShape EntityType="CloudControlModel.FBVMStatus" Width="1.5" PointX="4.5" PointY="0.75" />
-        <AssociationConnector Association="CloudControlModel.FK_FBMembers_Product1" />
-        <AssociationConnector Association="CloudControlModel.FK_FBMembersLoginlog_FBMembers" />
-        <AssociationConnector Association="CloudControlModel.FK_FBOrderlist_FBMembers" />
         <EntityTypeShape EntityType="CloudControlModel.FBOrder" Width="1.5" PointX="4.375" PointY="12.5" />
         <AssociationConnector Association="CloudControlModel.FK_FBOrder_CategoryMessage" />
-        <AssociationConnector Association="CloudControlModel.FK_Order_FBMembers" />
         <AssociationConnector Association="CloudControlModel.FK_FBOrder_Product" />
         <AssociationConnector Association="CloudControlModel.FK_FBVMLog_FBOrder" />
         <AssociationConnector Association="CloudControlModel.FK_Order_Product" />
@@ -63,6 +58,11 @@
         <AssociationConnector Association="CloudControlModel.FK_IGMembersLoginlog_IGMembers" />
         <AssociationConnector Association="CloudControlModel.FK_IGOrder_IGMembers" />
         <AssociationConnector Association="CloudControlModel.FK_IGOrderlist_IGMembers" />
+        <EntityTypeShape EntityType="CloudControlModel.FBMembers" Width="1.5" PointX="4.625" PointY="4.875" />
+        <AssociationConnector Association="CloudControlModel.FK_FBMembersLoginlog_FBMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_FBOrderlist_FBMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_Order_FBMembers" />
+        <AssociationConnector Association="CloudControlModel.FK_FBMembers_Product" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

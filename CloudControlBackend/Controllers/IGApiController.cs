@@ -7,6 +7,7 @@ using CloudControl.Model;
 using CloudControl.Service;
 using System.IO;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace CloudControlBackend.Controllers
 {
@@ -394,7 +395,7 @@ namespace CloudControlBackend.Controllers
         [HttpGet]
         public JsonResult GetIGMember(string Id, int number, string IGOrdernumber)
         {
-            var keyValues = new Dictionary<string, string>();
+            get_member_status MemberStatus = new get_member_status();
             if (Id == "CloudControl_order")
             {
                 IGOrder igorder = igorderService.Get().Where(a => a.IGOrdernumber == IGOrdernumber).FirstOrDefault();   // 撈該訂單
@@ -402,6 +403,7 @@ namespace CloudControlBackend.Controllers
                 IEnumerable<IGOrder> old_igorders = igorderService.Get().Where(c => c.Productid == igorder.Productid).Where(a => a.IGOrdernumber != IGOrdernumber).Where(x => x.Url == igorder.Url);  // 撈所有訂單裡網址為此訂單及產品為此訂單的資料                
                 Product product = productService.GetByID(igorder.Productid);    // 撈此訂單所需的產品
                 List<get_old_member> MemberList = new List<get_old_member>();
+                
                 /**** 先排除這張訂單的完成訂單裡的人 ****/
                 if (igorderlist != null)
                 {
@@ -436,8 +438,9 @@ namespace CloudControlBackend.Controllers
                 }
 
                 List<get_member> AccountList = new List<get_member>();
-                IEnumerable<IGMembers> IGMembers = igmembersService.Get().Where(a => a.Lastdate <= Now).Where(a => a.Country != null).Where(x => x.IGMembersLoginlog.OrderByDescending(c => c.Createdate).FirstOrDefault().Status != 2).OrderBy(o => o.Lastdate);    // 撈可用時間小於現在以及驗證狀態不是需驗證的會員
-                
+                //IEnumerable<IGMembers> IGMembers = igmembersService.Get().Where(a => a.Lastdate <= Now).Where(a => a.Country != null).Where(x => x.IGMembersLoginlog.OrderByDescending(c => c.Createdate).FirstOrDefault().Status != 2).OrderBy(o => o.Country);    // 撈可用時間小於現在以及驗證狀態不是需驗證的會員
+                /*** 測試用 ***/
+                IEnumerable<IGMembers> IGMembers = igmembersService.Get().Where(a => a.Country != null).Where(x => x.IGMembersLoginlog.OrderByDescending(c => c.Createdate).FirstOrDefault().Status != 2).OrderBy(o => o.Country);
                 if (IGMembers != null)
                 {
                     foreach (IGMembers Member in IGMembers)
@@ -502,55 +505,48 @@ namespace CloudControlBackend.Controllers
                             }
                         }
                     }
-                    /*** 可用人數小於該訂單所需人數 ****/
-                    if (AccountList.Count() < number)
+
+                    /*** 目前沒有可用人數 ****/
+                    if (AccountList.Count() <= 0)
                     {
-                        keyValues = new Dictionary<string, string>
-                        {
-                            { "Status" , "no_member" }
-                        };
-                        return this.Json(keyValues, JsonRequestBehavior.AllowGet);
+                        MemberStatus.status = false;                    
+                        return this.Json(MemberStatus, JsonRequestBehavior.AllowGet);
                     }
                     else
                     {
-
-                        foreach (get_member entity in AccountList.Take(number))
-                        {
-                            /*** 將此會員更新下次互惠時間 ****/
-                            IGMembers Member = igmembersService.GetByID(entity.Memberid);
+                        /*** 將相同國家的個別放群組 ****/
+                        // AccountList -> 目前可使用會員, List->目前可使用會員做Group by分組                      
+                        var List = AccountList.OrderBy(o => o.Country).GroupBy(a => a.Country).ToArray()[0];
+                        foreach(var Value in List)
+                        {                            
+                            IGMembers Member = igmembersService.GetByID(Value.Memberid);
                             Member.Lastdate = Now + 120;
                             igmembersService.SpecificUpdate(Member, new string[] { "Lastdate" });
-
-                            keyValues = new Dictionary<string, string>
-                            {
-                                { "Memberid", entity.Memberid.ToString() },
-                                { "Account", entity.Account },
-                                { "Password", entity.Password },
-                                { "Useragent", entity.Useragent_phone },
-                                { "Cookie", entity.Cookie },
-                                { "Country", entity.Country.ToString() }
-                            };
-                        }
+                        }                        
+                        //foreach (get_member entity in AccountList.Take(number))
+                        //{
+                        //    /*** 將此會員更新下次互惠時間 ****/
+                        //    IGMembers Member = igmembersService.GetByID(entity.Memberid);
+                        //    Member.Lastdate = Now + 120;
+                        //    igmembersService.SpecificUpdate(Member, new string[] { "Lastdate" });                                                        
+                        //}
                         igmembersService.SaveChanges();
-                        return this.Json(keyValues, JsonRequestBehavior.AllowGet);
+                        MemberStatus.status = true;
+                        MemberStatus.list = List;                        
+                                               
+                        return this.Json(MemberStatus, JsonRequestBehavior.AllowGet);
                     }
                 }
                 else
                 {
-                    keyValues = new Dictionary<string, string>
-                    {
-                        { "Status" , "no_member" }
-                    };
-                    return this.Json(keyValues, JsonRequestBehavior.AllowGet);
+                    MemberStatus.status = false;
+                    return this.Json(MemberStatus, JsonRequestBehavior.AllowGet);
                 }
             }
             else
             {
-                keyValues = new Dictionary<string, string>
-                {
-                    { "Status" , "Error" }
-                };
-                return this.Json(keyValues, JsonRequestBehavior.AllowGet);
+                MemberStatus.status = false;
+                return this.Json(MemberStatus, JsonRequestBehavior.AllowGet);
             }
         }
         #endregion
@@ -783,6 +779,11 @@ namespace CloudControlBackend.Controllers
         }
         #endregion
 
+        public class get_member_status
+        {
+            public bool status { get; set; }
+            public IEnumerable<get_member> list { get; set; }
+        }
         public class get_member
         {
             public Guid Memberid { get; set; }

@@ -57,9 +57,12 @@
           <Property Name="FB_Password" Type="nvarchar" MaxLength="100" />
           <Property Name="FB_Name" Type="nvarchar" MaxLength="50" />
           <Property Name="Useragent" Type="nvarchar" MaxLength="500" />
+          <Property Name="UserDataUrl" Type="nvarchar" MaxLength="1000" />
           <Property Name="Facebooklink" Type="nvarchar" MaxLength="500" />
           <Property Name="Cookie" Type="nvarchar(max)" />
           <Property Name="Lastdate" Type="bigint" />
+          <Property Name="Mega_Account" Type="nvarchar" MaxLength="100" />
+          <Property Name="Mega_Password" Type="nvarchar" MaxLength="100" />
           <Property Name="Updatedate" Type="datetime" />
           <Property Name="Createdate" Type="datetime" />
         </EntityType>
@@ -365,7 +368,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_FBMembers_Product1">
+        <Association Name="FK_FBMembers_Product">
           <End Role="Product" Type="Self.Product" Multiplicity="0..1" />
           <End Role="FBMembers" Type="Self.FBMembers" Multiplicity="*" />
           <ReferentialConstraint>
@@ -750,7 +753,7 @@
             <End Role="Lims" EntitySet="Lims" />
             <End Role="AdminLims" EntitySet="AdminLims" />
           </AssociationSet>
-          <AssociationSet Name="FK_FBMembers_Product1" Association="Self.FK_FBMembers_Product1">
+          <AssociationSet Name="FK_FBMembers_Product" Association="Self.FK_FBMembers_Product">
             <End Role="Product" EntitySet="Product" />
             <End Role="FBMembers" EntitySet="FBMembers" />
           </AssociationSet>
@@ -959,28 +962,11 @@
             <End Role="Product" EntitySet="Product" />
             <End Role="YTOrder" EntitySet="YTOrder" />
           </AssociationSet>
-          <EntitySet Name="FBMembers" EntityType="CloudControlModel.FBMembers" />
           <EntitySet Name="FBMembersLoginlog" EntityType="CloudControlModel.FBMembersLoginlog" />
           <EntitySet Name="FBVMStatus" EntityType="CloudControlModel.FBVMStatus" />
-          <AssociationSet Name="FK_FBMembers_Product1" Association="CloudControlModel.FK_FBMembers_Product1">
-            <End Role="Product" EntitySet="Product" />
-            <End Role="FBMembers" EntitySet="FBMembers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_FBMembersLoginlog_FBMembers" Association="CloudControlModel.FK_FBMembersLoginlog_FBMembers">
-            <End Role="FBMembers" EntitySet="FBMembers" />
-            <End Role="FBMembersLoginlog" EntitySet="FBMembersLoginlog" />
-          </AssociationSet>
-          <AssociationSet Name="FK_FBOrderlist_FBMembers" Association="CloudControlModel.FK_FBOrderlist_FBMembers">
-            <End Role="FBMembers" EntitySet="FBMembers" />
-            <End Role="FBOrderlist" EntitySet="FBOrderlist" />
-          </AssociationSet>
           <EntitySet Name="FBOrder" EntityType="CloudControlModel.FBOrder" />
           <AssociationSet Name="FK_FBOrder_CategoryMessage" Association="CloudControlModel.FK_FBOrder_CategoryMessage">
             <End Role="CategoryMessage" EntitySet="CategoryMessage" />
-            <End Role="FBOrder" EntitySet="FBOrder" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Order_FBMembers" Association="CloudControlModel.FK_Order_FBMembers">
-            <End Role="FBMembers" EntitySet="FBMembers" />
             <End Role="FBOrder" EntitySet="FBOrder" />
           </AssociationSet>
           <AssociationSet Name="FK_FBOrder_Product" Association="CloudControlModel.FK_FBOrder_Product">
@@ -1015,6 +1001,23 @@
           <AssociationSet Name="FK_IGOrderlist_IGMembers" Association="CloudControlModel.FK_IGOrderlist_IGMembers">
             <End Role="IGMembers" EntitySet="IGMembers" />
             <End Role="IGOrderlist" EntitySet="IGOrderlist" />
+          </AssociationSet>
+          <EntitySet Name="FBMembers" EntityType="CloudControlModel.FBMembers" />
+          <AssociationSet Name="FK_FBMembersLoginlog_FBMembers" Association="CloudControlModel.FK_FBMembersLoginlog_FBMembers">
+            <End Role="FBMembers" EntitySet="FBMembers" />
+            <End Role="FBMembersLoginlog" EntitySet="FBMembersLoginlog" />
+          </AssociationSet>
+          <AssociationSet Name="FK_FBOrderlist_FBMembers" Association="CloudControlModel.FK_FBOrderlist_FBMembers">
+            <End Role="FBMembers" EntitySet="FBMembers" />
+            <End Role="FBOrderlist" EntitySet="FBOrderlist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Order_FBMembers" Association="CloudControlModel.FK_Order_FBMembers">
+            <End Role="FBMembers" EntitySet="FBMembers" />
+            <End Role="FBOrder" EntitySet="FBOrder" />
+          </AssociationSet>
+          <AssociationSet Name="FK_FBMembers_Product" Association="CloudControlModel.FK_FBMembers_Product">
+            <End Role="Product" EntitySet="Product" />
+            <End Role="FBMembers" EntitySet="FBMembers" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="AdminLims">
@@ -1173,8 +1176,8 @@
           <Property Name="FBAccount" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Updatedate" Type="DateTime" Precision="3" />
           <Property Name="Createdate" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="FBMembers" Relationship="CloudControlModel.FK_FBOrderlist_FBMembers" FromRole="FBOrderlist" ToRole="FBMembers" />
           <NavigationProperty Name="FBOrder" Relationship="CloudControlModel.FK_Orderlist_Order" FromRole="FBOrderlist" ToRole="FBOrder" />
+          <NavigationProperty Name="FBMembers" Relationship="CloudControlModel.FK_FBOrderlist_FBMembers" FromRole="FBOrderlist" ToRole="FBMembers" />
         </EntityType>
         <EntityType Name="IGOrderlist">
           <Key>
@@ -1469,10 +1472,10 @@
           <NavigationProperty Name="IGOrder" Relationship="CloudControlModel.FK_IGOrder_Product" FromRole="Product" ToRole="IGOrder" />
           <NavigationProperty Name="YTMembers" Relationship="CloudControlModel.FK_YTMembers_Product1" FromRole="Product" ToRole="YTMembers" />
           <NavigationProperty Name="YTOrder" Relationship="CloudControlModel.FK_YTOrder_Product" FromRole="Product" ToRole="YTOrder" />
-          <NavigationProperty Name="FBMembers" Relationship="CloudControlModel.FK_FBMembers_Product1" FromRole="Product" ToRole="FBMembers" />
           <NavigationProperty Name="FBOrder" Relationship="CloudControlModel.FK_FBOrder_Product" FromRole="Product" ToRole="FBOrder" />
           <NavigationProperty Name="FBOrder1" Relationship="CloudControlModel.FK_Order_Product" FromRole="Product" ToRole="FBOrder" />
           <NavigationProperty Name="IGMembers" Relationship="CloudControlModel.FK_IGMembers_Product" FromRole="Product" ToRole="IGMembers" />
+          <NavigationProperty Name="FBMembers" Relationship="CloudControlModel.FK_FBMembers_Product" FromRole="Product" ToRole="FBMembers" />
           </EntityType>
         <Association Name="FK_Product_Category">
           <End Type="CloudControlModel.CategoryProduct" Role="CategoryProduct" Multiplicity="0..1">
@@ -1524,30 +1527,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="FBMembers">
-          <Key>
-            <PropertyRef Name="FBMemberid" />
-          </Key>
-          <Property Name="Isenable" Type="Int32" />
-          <Property Name="Isdocker" Type="Int32" Nullable="false" />
-          <Property Name="Isnew" Type="Int32" Nullable="false" />
-          <Property Name="AccountCost" Type="Double" />
-          <Property Name="FBMemberid" Type="Guid" Nullable="false" />
-          <Property Name="Productid" Type="Guid" />
-          <Property Name="FB_Account" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="FB_Password" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="FB_Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Useragent" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="Facebooklink" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="Cookie" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Lastdate" Type="Int64" />
-          <Property Name="Updatedate" Type="DateTime" Precision="3" />
-          <Property Name="Createdate" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="Product" Relationship="CloudControlModel.FK_FBMembers_Product1" FromRole="FBMembers" ToRole="Product" />
-          <NavigationProperty Name="FBMembersLoginlog" Relationship="CloudControlModel.FK_FBMembersLoginlog_FBMembers" FromRole="FBMembers" ToRole="FBMembersLoginlog" />
-          <NavigationProperty Name="FBOrderlist" Relationship="CloudControlModel.FK_FBOrderlist_FBMembers" FromRole="FBMembers" ToRole="FBOrderlist" />
-          <NavigationProperty Name="FBOrder" Relationship="CloudControlModel.FK_Order_FBMembers" FromRole="FBMembers" ToRole="FBOrder" />
-        </EntityType>
         <EntityType Name="FBMembersLoginlog">
           <Key>
             <PropertyRef Name="Id" />
@@ -1566,42 +1545,6 @@
           <Property Name="Count" Type="Int32" Nullable="false" />
           <Property Name="Location" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
-        <Association Name="FK_FBMembers_Product1">
-          <End Type="CloudControlModel.Product" Role="Product" Multiplicity="0..1" />
-          <End Type="CloudControlModel.FBMembers" Role="FBMembers" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Product">
-              <PropertyRef Name="Productid" />
-            </Principal>
-            <Dependent Role="FBMembers">
-              <PropertyRef Name="Productid" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_FBMembersLoginlog_FBMembers">
-          <End Type="CloudControlModel.FBMembers" Role="FBMembers" Multiplicity="0..1" />
-          <End Type="CloudControlModel.FBMembersLoginlog" Role="FBMembersLoginlog" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="FBMembers">
-              <PropertyRef Name="FBMemberid" />
-            </Principal>
-            <Dependent Role="FBMembersLoginlog">
-              <PropertyRef Name="FBMemberid" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_FBOrderlist_FBMembers">
-          <End Type="CloudControlModel.FBMembers" Role="FBMembers" Multiplicity="0..1" />
-          <End Type="CloudControlModel.FBOrderlist" Role="FBOrderlist" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="FBMembers">
-              <PropertyRef Name="FBMemberid" />
-            </Principal>
-            <Dependent Role="FBOrderlist">
-              <PropertyRef Name="FBMemberid" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="FBOrder">
           <Key>
             <PropertyRef Name="FBOrderid" />
@@ -1630,11 +1573,11 @@
           <Property Name="Updatedate" Type="DateTime" Precision="3" />
           <Property Name="Createdate" Type="DateTime" Precision="3" />
           <NavigationProperty Name="CategoryMessage" Relationship="CloudControlModel.FK_FBOrder_CategoryMessage" FromRole="FBOrder" ToRole="CategoryMessage" />
-          <NavigationProperty Name="FBMembers" Relationship="CloudControlModel.FK_Order_FBMembers" FromRole="FBOrder" ToRole="FBMembers" />
           <NavigationProperty Name="Product" Relationship="CloudControlModel.FK_FBOrder_Product" FromRole="FBOrder" ToRole="Product" />
           <NavigationProperty Name="FBVMLog" Relationship="CloudControlModel.FK_FBVMLog_FBOrder" FromRole="FBOrder" ToRole="FBVMLog" />
           <NavigationProperty Name="Product1" Relationship="CloudControlModel.FK_Order_Product" FromRole="FBOrder" ToRole="Product" />
           <NavigationProperty Name="FBOrderlist" Relationship="CloudControlModel.FK_Orderlist_Order" FromRole="FBOrder" ToRole="FBOrderlist" />
+          <NavigationProperty Name="FBMembers" Relationship="CloudControlModel.FK_Order_FBMembers" FromRole="FBOrder" ToRole="FBMembers" />
         </EntityType>
         <Association Name="FK_FBOrder_CategoryMessage">
           <End Type="CloudControlModel.CategoryMessage" Role="CategoryMessage" Multiplicity="0..1" />
@@ -1645,20 +1588,6 @@
             </Principal>
             <Dependent Role="FBOrder">
               <PropertyRef Name="Categoryid" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Order_FBMembers">
-          <End Type="CloudControlModel.FBMembers" Role="FBMembers" Multiplicity="0..1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="CloudControlModel.FBOrder" Role="FBOrder" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="FBMembers">
-              <PropertyRef Name="FBMemberid" />
-            </Principal>
-            <Dependent Role="FBOrder">
-              <PropertyRef Name="FBMemberid" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1782,6 +1711,83 @@
             </Principal>
             <Dependent Role="IGOrderlist">
               <PropertyRef Name="IGMemberid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="FBMembers">
+          <Key>
+            <PropertyRef Name="FBMemberid" />
+          </Key>
+          <Property Name="Isenable" Type="Int32" />
+          <Property Name="Isdocker" Type="Int32" Nullable="false" />
+          <Property Name="Isnew" Type="Int32" Nullable="false" />
+          <Property Name="AccountCost" Type="Double" />
+          <Property Name="FBMemberid" Type="Guid" Nullable="false" />
+          <Property Name="Productid" Type="Guid" />
+          <Property Name="FB_Account" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="FB_Password" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="FB_Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Useragent" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="UserDataUrl" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="Facebooklink" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Cookie" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Lastdate" Type="Int64" />
+          <Property Name="Updatedate" Type="DateTime" Precision="3" />
+          <Property Name="Createdate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="FBMembersLoginlog" Relationship="CloudControlModel.FK_FBMembersLoginlog_FBMembers" FromRole="FBMembers" ToRole="FBMembersLoginlog" />
+          <NavigationProperty Name="FBOrderlist" Relationship="CloudControlModel.FK_FBOrderlist_FBMembers" FromRole="FBMembers" ToRole="FBOrderlist" />
+          <NavigationProperty Name="FBOrder" Relationship="CloudControlModel.FK_Order_FBMembers" FromRole="FBMembers" ToRole="FBOrder" />
+          <Property Name="Mega_Account" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Mega_Password" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Product" Relationship="CloudControlModel.FK_FBMembers_Product" FromRole="FBMembers" ToRole="Product" />
+        </EntityType>
+        <Association Name="FK_FBMembersLoginlog_FBMembers">
+          <End Type="CloudControlModel.FBMembers" Role="FBMembers" Multiplicity="0..1" />
+          <End Type="CloudControlModel.FBMembersLoginlog" Role="FBMembersLoginlog" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FBMembers">
+              <PropertyRef Name="FBMemberid" />
+            </Principal>
+            <Dependent Role="FBMembersLoginlog">
+              <PropertyRef Name="FBMemberid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_FBOrderlist_FBMembers">
+          <End Type="CloudControlModel.FBMembers" Role="FBMembers" Multiplicity="0..1" />
+          <End Type="CloudControlModel.FBOrderlist" Role="FBOrderlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FBMembers">
+              <PropertyRef Name="FBMemberid" />
+            </Principal>
+            <Dependent Role="FBOrderlist">
+              <PropertyRef Name="FBMemberid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Order_FBMembers">
+          <End Type="CloudControlModel.FBMembers" Role="FBMembers" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="CloudControlModel.FBOrder" Role="FBOrder" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FBMembers">
+              <PropertyRef Name="FBMemberid" />
+            </Principal>
+            <Dependent Role="FBOrder">
+              <PropertyRef Name="FBMemberid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_FBMembers_Product">
+          <End Type="CloudControlModel.Product" Role="Product" Multiplicity="0..1" />
+          <End Type="CloudControlModel.FBMembers" Role="FBMembers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Product">
+              <PropertyRef Name="Productid" />
+            </Principal>
+            <Dependent Role="FBMembers">
+              <PropertyRef Name="Productid" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2066,27 +2072,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="FBMembers">
-            <EntityTypeMapping TypeName="CloudControlModel.FBMembers">
-              <MappingFragment StoreEntitySet="FBMembers">
-                <ScalarProperty Name="Createdate" ColumnName="Createdate" />
-                <ScalarProperty Name="Updatedate" ColumnName="Updatedate" />
-                <ScalarProperty Name="Lastdate" ColumnName="Lastdate" />
-                <ScalarProperty Name="Cookie" ColumnName="Cookie" />
-                <ScalarProperty Name="Facebooklink" ColumnName="Facebooklink" />
-                <ScalarProperty Name="Useragent" ColumnName="Useragent" />
-                <ScalarProperty Name="FB_Name" ColumnName="FB_Name" />
-                <ScalarProperty Name="FB_Password" ColumnName="FB_Password" />
-                <ScalarProperty Name="FB_Account" ColumnName="FB_Account" />
-                <ScalarProperty Name="Productid" ColumnName="Productid" />
-                <ScalarProperty Name="FBMemberid" ColumnName="FBMemberid" />
-                <ScalarProperty Name="AccountCost" ColumnName="AccountCost" />
-                <ScalarProperty Name="Isnew" ColumnName="Isnew" />
-                <ScalarProperty Name="Isdocker" ColumnName="Isdocker" />
-                <ScalarProperty Name="Isenable" ColumnName="Isenable" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="FBMembersLoginlog">
             <EntityTypeMapping TypeName="CloudControlModel.FBMembersLoginlog">
               <MappingFragment StoreEntitySet="FBMembersLoginlog">
@@ -2150,6 +2135,30 @@
                 <ScalarProperty Name="IG_Account" ColumnName="IG_Account" />
                 <ScalarProperty Name="Productid" ColumnName="Productid" />
                 <ScalarProperty Name="IGMemberid" ColumnName="IGMemberid" />
+                <ScalarProperty Name="Isdocker" ColumnName="Isdocker" />
+                <ScalarProperty Name="Isenable" ColumnName="Isenable" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FBMembers">
+            <EntityTypeMapping TypeName="CloudControlModel.FBMembers">
+              <MappingFragment StoreEntitySet="FBMembers">
+                <ScalarProperty Name="Mega_Password" ColumnName="Mega_Password" />
+                <ScalarProperty Name="Mega_Account" ColumnName="Mega_Account" />
+                <ScalarProperty Name="Createdate" ColumnName="Createdate" />
+                <ScalarProperty Name="Updatedate" ColumnName="Updatedate" />
+                <ScalarProperty Name="Lastdate" ColumnName="Lastdate" />
+                <ScalarProperty Name="Cookie" ColumnName="Cookie" />
+                <ScalarProperty Name="Facebooklink" ColumnName="Facebooklink" />
+                <ScalarProperty Name="UserDataUrl" ColumnName="UserDataUrl" />
+                <ScalarProperty Name="Useragent" ColumnName="Useragent" />
+                <ScalarProperty Name="FB_Name" ColumnName="FB_Name" />
+                <ScalarProperty Name="FB_Password" ColumnName="FB_Password" />
+                <ScalarProperty Name="FB_Account" ColumnName="FB_Account" />
+                <ScalarProperty Name="Productid" ColumnName="Productid" />
+                <ScalarProperty Name="FBMemberid" ColumnName="FBMemberid" />
+                <ScalarProperty Name="AccountCost" ColumnName="AccountCost" />
+                <ScalarProperty Name="Isnew" ColumnName="Isnew" />
                 <ScalarProperty Name="Isdocker" ColumnName="Isdocker" />
                 <ScalarProperty Name="Isenable" ColumnName="Isenable" />
               </MappingFragment>

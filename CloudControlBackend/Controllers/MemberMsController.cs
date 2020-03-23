@@ -46,7 +46,7 @@ namespace CloudControlBackend.Controllers
         public ActionResult FBMembers(int p = 1)
         {
             //var data = fbmembersService.GetNoDel().OrderByDescending(o => o.Createdate);
-            var data = fbmembersService.Get().OrderByDescending(o => o.FBOrderlist.Count());
+            var data = fbmembersService.Get().OrderByDescending(o => o.Createdate);
             ViewBag.pageNumber = p;
             ViewBag.FBMembers = data.ToPagedList(pageNumber: p, pageSize: 100);
             //ViewBag.FBMembers = data;
@@ -284,8 +284,12 @@ namespace CloudControlBackend.Controllers
                         fbmember.FBMemberid = Guid.NewGuid();
                         fbmember.Createdate = dt_tw();
                         fbmember.Updatedate = dt_tw();
-                        fbmember.Lastdate = ((int)(dt_tw() - new DateTime(1970, 1, 1)).TotalSeconds) - 28800;
-                        fbmember.Isnew = 0; // 是否新Cookie【0:舊Cookie 1: 新Cookie】
+                        //fbmember.Lastdate = ((int)(dt_tw() - new DateTime(1970, 1, 1)).TotalSeconds) - 28800;                        
+                        //fbmember.Isnew = 0; // 是否新Cookie【0:舊Cookie 1: 新Cookie】
+                        /**** 測試 ****/
+                        fbmember.Lastdate = 0; // 測試
+                        fbmember.Isnew = 1; // 測試
+
                         fbmember.AccountCost = FBAccountCostProduct.Cost; // 帳號成本為當前的帳號成本
                         /*** 隨機指派手機版Useragent ***/
                         int useragent_phone = useragentService.Get().Count();

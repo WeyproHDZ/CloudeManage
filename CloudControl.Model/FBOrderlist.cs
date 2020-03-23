@@ -22,7 +22,7 @@ namespace CloudControl.Model
         public Nullable<System.DateTime> Updatedate { get; set; }
         public Nullable<System.DateTime> Createdate { get; set; }
     
-        public virtual FBMembers FBMembers { get; set; }
         public virtual FBOrder FBOrder { get; set; }
+        public virtual FBMembers FBMembers { get; set; }
     }
 }

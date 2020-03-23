@@ -123,7 +123,7 @@
                                                         break;
                                                 }
                                                 <td class="text-center"><a href="@Url.Action("FBOrderlist", "OrderMs", new { FBOrderid = entity.FBOrderid })" class="btn btn-info btn-xs"><i class="fa fa-paper-plane"></i></a></td>
-                                                @if (entity.FBOrderStatus == 2)
+                                                @if (entity.FBOrderStatus == 2 || entity.ReplenishCount > 0)
                                                 {
                                                     <td class="text-center"><a href="@Url.Action("FBOrderreplenish", "OrderMs", new { FBOrderid = entity.FBOrderid, p = ViewBag.pageNumber })" class="btn btn-info btn-xs"><i class="fa fa-plus"></i></a></td>
                                                 }
@@ -193,123 +193,122 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 @section scripts {
-    <script>
-        function Statistics_order(FBOrdernumber) {
-            console.log(FBOrdernumber);
+<script>
+    function Statistics_order(FBOrdernumber) {
+        console.log(FBOrdernumber);
+        $.ajax({
+            url: '@Url.Action("AjaxStatisticsOrder", "Ajax")',
+            data: { Ordernumber: FBOrdernumber },
+            type: 'post',
+            dateType: 'json',
+            success: function (response) {
+            }
+        });
+    }
+    function Checkall() {
+        var FBOrdernumber = [];
+        if ($('#CheckAll').prop("checked")) {
+            $.each($('tr').find('input#Check'), function () {
+                $(this).prop("checked", true);
+                FBOrdernumber.push($(this).data("fbordernumber"));  //塞到陣列中
+            });
             $.ajax({
-                url: '@Url.Action("AjaxStatisticsOrder", "Ajax")',
+                url: '@Url.Action("AjaxStatisticsAllOrder", "Ajax")',
                 data: { Ordernumber: FBOrdernumber },
                 type: 'post',
                 dateType: 'json',
-                success: function (response) {
+                success: function (response) {               
                 }
             });
         }
-        function Checkall() {
-            var FBOrdernumber = [];
-            if ($('#CheckAll').prop("checked")) {
-                $.each($('tr').find('input#Check'), function () {
-                    $(this).prop("checked", true);
-                    FBOrdernumber.push($(this).data("fbordernumber"));  //塞到陣列中
-                });
-                $.ajax({
-                    url: '@Url.Action("AjaxStatisticsAllOrder", "Ajax")',
-                    data: { Ordernumber: FBOrdernumber },
-                    type: 'post',
-                    dateType: 'json',
-                    success: function (response) {               
-                    }
-                });
-            }
-            else {
-                $.each($('tr').find('input#Check'), function () {
-                    $(this).prop("checked", false);
-                });
-            }
-        }
-        /*** 批量刪除 ***/
-        function DeleteFBOrderChecked() {
-            var FBOrderid = [];
-            swal({
-                title:"確定要刪除嗎?",
-                showCancelButton: true,
-                confirmButtonText: '確定！',
-                cancelButtonText: '取消！',
-                type:'question',
-            }).then(function(e){
-                $.each($('tr').find('input#Check'), function () {
-                    if ($(this).prop('checked') == true) {
-                        FBOrderid.push($(this).attr("name"));  //塞到陣列中
-                    }
-                });
-                $.ajax({
-                    url: '@Url.Action("AjaxDeleteFBOrderChecked", "Ajax")',
-                    data: { FBOrderid: FBOrderid },
-                    type: 'post',
-                    dateType: 'json',
-                    success: function (response) {
-                        swal({
-                            title: "已成功刪除",
-                            type: "success"
-                        }).then(function (e) {
-                            location.reload();
-                        });
-                    }
-                });
-            })
-        }
-        /**** 計算成本/售量/利潤 ***/
-        function CalcCheckedCost() {
-            $.ajax({
-                url: '@Url.Action("AjaxCalcCheckedCost", "Ajax")',
-                data: {},
-                type: 'post',
-                dateType: 'json',
-                success: function (response) {
-                    var responseArray = response.split(";")
-                    swal({
-                        title: "計算結果",
-                        html: "成本 : "+responseArray[0]+"<br>"+"售價 : "+responseArray[1]+"<br>"+"利潤 : "+responseArray[2]+"<br>"+"共"+responseArray[3]+"筆"
-                    }).then(function (e) {
-                        location.reload();
-                    });
-                }
+        else {
+            $.each($('tr').find('input#Check'), function () {
+                $(this).prop("checked", false);
             });
         }
-
-        /**** 更新訂單 成本/完成人數/死亡人數/補充人數 ***/
-        function UpdateCheckedCost() {
-            var FBOrderid = [];
+    }
+    /*** 批量刪除 ***/
+    function DeleteFBOrderChecked() {
+        var FBOrderid = [];
+        swal({
+            title:"確定要刪除嗎?",
+            showCancelButton: true,
+            confirmButtonText: '確定！',
+            cancelButtonText: '取消！',
+            type:'question',
+        }).then(function(e){
             $.each($('tr').find('input#Check'), function () {
                 if ($(this).prop('checked') == true) {
                     FBOrderid.push($(this).attr("name"));  //塞到陣列中
                 }
             });
             $.ajax({
-                'url': '@Url.Action("AjaxUpdateCheckedCost", "Ajax")',
-                'type': 'post',
-                'data': { FBOrderid: FBOrderid },
-                'dataType': 'json',
-                'timeout': 30000,
-                'beforeSend': function () {
+                url: '@Url.Action("AjaxDeleteFBOrderChecked", "Ajax")',
+                data: { FBOrderid: FBOrderid },
+                type: 'post',
+                dateType: 'json',
+                success: function (response) {
                     swal({
-                        title: "請稍等!",
-                        type: 'warning',
-                        text: "正在更新訂單!",
-                        showConfirmButton: false
-                    });
-                },
-                'success': function (response) {
-                    swal({
-                        title: '已更新',
-                        type: 'success',
-                        showCancelButton: false,
-                        confirmButtonText: '確定！',
+                        title: "已成功刪除",
+                        type: "success"
                     }).then(function (e) {
                         location.reload();
                     });
                 }
             });
-        }
-    </script>
+        })
+    }
+    /**** 計算成本/售量/利潤 ***/
+    function CalcCheckedCost() {
+        $.ajax({
+            url: '@Url.Action("AjaxCalcCheckedCost", "Ajax")',
+            data: {},
+            type: 'post',
+            dateType: 'json',
+            success: function (response) {
+                var responseArray = response.split(";")
+                swal({
+                    title: "計算結果",
+                    html: "成本 : "+responseArray[0]+"<br>"+"售價 : "+responseArray[1]+"<br>"+"利潤 : "+responseArray[2]+"<br>"+"共"+responseArray[3]+"筆"
+                }).then(function (e) {
+                    location.reload();
+                });
+            }
+        });
+    }
+
+    /**** 更新訂單 成本/完成人數/死亡人數/補充人數 ***/
+    function UpdateCheckedCost() {
+        var FBOrderid = [];
+        $.each($('tr').find('input#Check'), function () {
+            if ($(this).prop('checked') == true) {
+                FBOrderid.push($(this).attr("name"));  //塞到陣列中
+            }
+        });
+        $.ajax({
+            'url': '@Url.Action("AjaxUpdateCheckedCost", "Ajax")',
+            'type': 'post',
+            'data': { FBOrderid: FBOrderid },
+            'dataType': 'json',
+            'beforeSend': function () {
+                swal({
+                    title: "請稍等!",
+                    type: 'warning',
+                    text: "正在更新訂單!",
+                    showConfirmButton: false
+                });
+            },
+            'success': function (response) {
+                swal({
+                    title: '已更新',
+                    type: 'success',
+                    showCancelButton: false,
+                    confirmButtonText: '確定！',
+                }).then(function (e) {
+                    location.reload();
+                });
+            }
+        });
+    }
+</script>
 }

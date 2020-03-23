@@ -200,8 +200,8 @@ namespace CloudControlBackend.Controllers
             List<ProductNumber> List = new List<ProductNumber>();
             foreach(Product Product in ProductList)            
             {
-                int Count = fbmembersService.Get().Where(n => n.Isnew == 1).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();                
-                int PrepCount = fbmembersService.GetNoDel().Where(n => n.Isnew == 1).Where(i => i.Isenable == 2).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
+                int Count = fbmembersService.Get().Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();                
+                int PrepCount = fbmembersService.GetNoDel().Where(i => i.Isenable == 2).Where(a => a.FBMembersLoginlog.FirstOrDefault().Status != 2).Where(p => p.Productid == Product.Productid).Count();
                 int Death = fbmembersService.Get().Where(a => a.FBMembersLoginlog.FirstOrDefault().Status == 2).Where(p => p.Productid == Product.Productid).Count();
                 List.Add(
                     new ProductNumber()
