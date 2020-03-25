@@ -2291,14 +2291,11 @@ namespace CloudControlBackend.Controllers
         #endregion
         #region --測試API--
         [HttpGet]
-        public JsonResult Test_Api()
+        public JsonResult Test_Api(string Account)
         {
-            IEnumerable<FBMembers> FBMembers = fbmembersService.GetNoDel();
-            foreach(FBMembers FBMember in FBMembers)
-            {
-                FBMember.FB_Account = FBMember.FB_Account.Replace(" ", "");
-                fbmembersService.SpecificUpdate(FBMember, new string[] { "FB_Account" });
-            }
+            FBMembers FBMember = fbmembersService.GetNoDel().Where(a => a.FB_Account.Contains(Account)).FirstOrDefault();
+            FBMember.FB_Account = FBMember.FB_Account.Trim();
+            fbmembersService.SpecificUpdate(FBMember, new string[] { "FB_Account" });
             fbmembersService.SaveChanges();
             return this.Json("Success", JsonRequestBehavior.AllowGet);
         }

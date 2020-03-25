@@ -118,7 +118,7 @@ namespace CloudControlBackend.Controllers
             if (TryUpdateModel(fbmember, new string[] { "FB_Account", "FB_Password", "Facebooklink", "FB_Name", "Isenable", "Productid" }) && ModelState.IsValid)
             {
                 fbmember.FBMemberid = Guid.NewGuid();
-                fbmember.FB_Account = Regex.Replace(fbmember.FB_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                fbmember.FB_Account = Regex.Replace(fbmember.FB_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "").Trim();         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值，清除頭尾空白
                 fbmember.Createdate = dt_tw();
                 fbmember.Updatedate = dt_tw();
                 fbmember.Lastdate = ((int)(dt_tw() - new DateTime(1970, 1, 1)).TotalSeconds) - 28800;      // 總秒數
@@ -173,7 +173,7 @@ namespace CloudControlBackend.Controllers
             FBMembers fbmember = fbmembersService.GetByID(FBMemberid);
             if (TryUpdateModel(fbmember, new string[] { "FB_Account", "FB_Password", "Facebooklink", "FB_Name", "Productid"}) && ModelState.IsValid)
             {
-                fbmember.FB_Account = Regex.Replace(fbmember.FB_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                fbmember.FB_Account = Regex.Replace(fbmember.FB_Account, @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "").Trim();         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值，清除頭尾空白
                 fbmembersService.Update(fbmember);                
                 fbmembersService.SaveChanges();
 
@@ -224,7 +224,7 @@ namespace CloudControlBackend.Controllers
                         Product FBAccountCostProduct = productService.GetByID(FBAccountCostid); // FB帳號成本
 
                         var test = sheet.GetRow(i).GetCell(3).ToString();
-                        fbmember.FB_Account = Regex.Replace(sheet.GetRow(i).GetCell(0).ToString(), @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "");         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值
+                        fbmember.FB_Account = Regex.Replace(sheet.GetRow(i).GetCell(0).ToString(), @"[^a-z||A-Z||@||.||0-9]", "").Replace(" ", "").Trim();         // 保留A-Z、a-z、0-9、小老鼠、小數點，其餘取代空值，清除頭尾空白
                         fbmember.FB_Password = sheet.GetRow(i).GetCell(1).ToString();
                         fbmember.FB_Name = sheet.GetRow(i).GetCell(2).ToString();
                         if(sheet.GetRow(i).GetCell(3).ToString() != "null")

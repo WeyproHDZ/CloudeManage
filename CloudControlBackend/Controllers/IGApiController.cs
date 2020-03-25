@@ -516,7 +516,7 @@ namespace CloudControlBackend.Controllers
                     {
                         /*** 將相同國家的個別放群組 ****/
                         // AccountList -> 目前可使用會員, List->目前可使用會員做Group by分組                      
-                        var List = AccountList.OrderBy(o => o.Country).GroupBy(a => a.Country).ToArray()[0];
+                        var List = AccountList.OrderBy(o => o.Country).GroupBy(a => a.Country).ToArray()[0].Take(number);
                         foreach(var Value in List)
                         {                            
                             IGMembers Member = igmembersService.GetByID(Value.Memberid);
